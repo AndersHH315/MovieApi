@@ -1,4 +1,6 @@
-﻿namespace MovieApi.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace MovieApi.Models;
 
 public class Review
 {
@@ -8,5 +10,6 @@ public class Review
     public int Rating { get; set; }
 
     public int MovieId { get; set; }
+    [JsonIgnore]
     public Movie Movies { get; set; } = null!;
 }
