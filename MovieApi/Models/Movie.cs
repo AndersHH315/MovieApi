@@ -12,7 +12,7 @@ public class Movie
 
     public MovieDetails? MovieDetails { get; set; }
 
-    public ICollection<Review>? Reviews { get; set; }
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     public ICollection<Actor>? Actors { get; set; }
 }

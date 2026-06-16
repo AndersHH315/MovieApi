@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Models;
 using MovieApi.Data;
+using Microsoft.EntityFrameworkCore.Storage;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,7 +18,11 @@ public class MoviesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Movie>>> GetMovie()
     {
-        return await _context.Movies.ToListAsync();
+        return await _context.Movies
+            .Include(md => md.MovieDetails)
+            .Include(g => g.Genres)
+            .Include(r => r.Reviews)
+            .ToListAsync();
     }
 
     // GET: api/Movie/5
