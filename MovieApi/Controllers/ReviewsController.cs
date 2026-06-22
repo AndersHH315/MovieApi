@@ -3,15 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Models;
 using MovieApi.Data;
 
+namespace MovieApi.Controllers;
+
 [Route("api/[controller]")]
 [ApiController]
-public class ReviewsController : ControllerBase
+public class ReviewsController(MovieApiContext context) : ControllerBase
 {
-    private readonly MovieApiContext _context;
-    public ReviewsController(MovieApiContext context)
-    {
-        _context = context;
-    }
+    private readonly MovieApiContext _context = context;
 
     // GET: api/Review
     [HttpGet]

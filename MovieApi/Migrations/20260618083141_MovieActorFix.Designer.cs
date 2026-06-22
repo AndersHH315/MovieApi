@@ -12,8 +12,8 @@ using MovieApi.Data;
 namespace MovieApi.Migrations
 {
     [DbContext(typeof(MovieApiContext))]
-    [Migration("20260616122124_MovieSeeds")]
-    partial class MovieSeeds
+    [Migration("20260618083141_MovieActorFix")]
+    partial class MovieActorFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace MovieApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MovieActor", b =>
+            modelBuilder.Entity("ActorMovie", b =>
                 {
                     b.Property<int>("ActorsId")
                         .HasColumnType("int");
@@ -37,7 +37,7 @@ namespace MovieApi.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("MovieActor");
+                    b.ToTable("ActorMovie");
                 });
 
             modelBuilder.Entity("MovieApi.Models.Actor", b =>
@@ -244,7 +244,7 @@ namespace MovieApi.Migrations
                         new
                         {
                             Id = 1,
-                            Budget = 160000000,
+                            Budget = 16000000,
                             Language = "English",
                             MovieId = 1,
                             Synopsis = "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO."
@@ -352,7 +352,7 @@ namespace MovieApi.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MovieActor", b =>
+            modelBuilder.Entity("ActorMovie", b =>
                 {
                     b.HasOne("MovieApi.Models.Actor", null)
                         .WithMany()

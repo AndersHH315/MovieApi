@@ -241,7 +241,7 @@ namespace MovieApi.Migrations
                         new
                         {
                             Id = 1,
-                            Budget = 160000000,
+                            Budget = 16000000,
                             Language = "English",
                             MovieId = 1,
                             Synopsis = "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO."

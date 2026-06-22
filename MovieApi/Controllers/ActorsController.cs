@@ -3,15 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Models;
 using MovieApi.Data;
 
+namespace MovieApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class ActorsController : ControllerBase
+public class ActorsController(MovieApiContext context) : ControllerBase
 {
-    private readonly MovieApiContext _context;
-    public ActorsController(MovieApiContext context)
-    {
-        _context = context;
-    }
+    private readonly MovieApiContext _context = context;
 
     // GET: api/Actor
     [HttpGet]
