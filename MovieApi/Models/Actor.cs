@@ -9,5 +9,5 @@ public class Actor
     [DisplayFormat(DataFormatString = "{0:yyyy}", ApplyFormatInEditMode = true)]
     public DateTime BirthYear { get; set; }
 
-    public ICollection<Movie>? Movies { get; set; }
+    public ICollection<Movie> Movies { get; set; } = [];
 }

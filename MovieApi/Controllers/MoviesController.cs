@@ -18,7 +18,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
     {
-        return await _context.Movies.Select( m => new MovieDto
+        return await _context.Movies.Select(m => new MovieDto
         {
             Title = m.Title,
             Year = m.Year,
@@ -106,7 +106,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok();
     }
 
     // POST: api/Movie
@@ -140,7 +140,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
         _context.Movies.Remove(movie);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok();
     }
 
     private bool MovieExists(int? id)
