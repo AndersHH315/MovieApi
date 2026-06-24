@@ -6,14 +6,13 @@ using MovieApi.DTOs;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace MovieApi.Controllers;
-[Route("api/[controller]")]
+[Route("api/")]
 [ApiController]
 public class ActorsController(MovieApiContext context) : ControllerBase
 {
     private readonly MovieApiContext _context = context;
 
-    // GET: api/Actor
-    [HttpGet]
+    [HttpGet("actors")]
     public async Task<ActionResult<IEnumerable<ActorDto>>> GetActor()
     {
 
@@ -24,8 +23,7 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         }).ToListAsync();
     }
 
-    // GET: api/Actor/5
-    [HttpGet("{id}")]
+    [HttpGet("actors/{id}")]
     public async Task<ActionResult<ActorDto>> GetActor(int id)
     {
         var actor = await _context.Actors.Where(a => a.Id == id).Select(a => new ActorDto
@@ -42,9 +40,8 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         return Ok(actor);
     }
 
-    // PUT: api/Actor/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{id}")]
+ 
+    [HttpPut("actors/{id}")]
     public async Task<IActionResult> PutActor(int? id, [FromQuery] ActorDto actorDto)
     {
         var actor = new Actor()
@@ -80,9 +77,7 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         return Ok();
     }
 
-    // POST: api/Actor
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
+    [HttpPost("actors")]
     public async Task<ActionResult<ActorDto>> PostActor([FromQuery] ActorDto actorDto)
     {
         var actor = new Actor()
@@ -96,7 +91,7 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         return CreatedAtAction("GetActor", new ActorDto(), actor);
     }
 
-    [HttpPost("{actorid}/movies/{movieid}")]
+    [HttpPost("movies/{movieid}/actors/{actorid}")]
     public async Task<ActionResult<Actor>> AddActorToMovie(int actorid, int movieid)
     {
         var selectedMovie = await _context.Movies
@@ -112,8 +107,7 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         return Ok();
     }
 
-    // DELETE: api/Actor/5
-    [HttpDelete("{id}")]
+    [HttpDelete("actors/{id}")]
     public async Task<IActionResult> DeleteActor(int? id)
     {
         var actor = await _context.Actors.FindAsync(id);

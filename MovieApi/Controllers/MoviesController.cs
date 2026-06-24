@@ -8,27 +8,30 @@ using System.Collections.Immutable;
 
 namespace MovieApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/")]
 [ApiController]
 public class MoviesController(MovieApiContext context) : ControllerBase
 {
     private readonly MovieApiContext _context = context;
 
-    // GET: api/Movie
-    [HttpGet]
+    [HttpGet("movies")]
     public async Task<ActionResult<IEnumerable<MovieDto>>> GetMovie()
     {
-        return await _context.Movies.Select(m => new MovieDto
+        var movies = await _context.Movies.Select(m => new MovieDto
         {
             Title = m.Title,
             Year = m.Year,
             Duration = m.Duration,
             Genre = m.Genres.GenreType
         }).ToListAsync();
+
+        if (movies == null)
+            return NotFound();
+
+        return Ok(movies);
     }
 
-    // GET: api/Movie/5
-    [HttpGet("{id}")]
+    [HttpGet("movies/{id}")]
     public async Task<ActionResult<MovieDto>> GetMovie(int id)
     {
         var movie = await _context.Movies.Where(m => m.Id == id).Select(m => new MovieDto { 
@@ -46,7 +49,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
         return Ok(movie);
     }
 
-    [HttpGet("{id}/details")]
+    [HttpGet("movies/{id}/details")]
     public async Task<ActionResult<MovieDetailDto>> GetMovieDetails(int id)
     {
         var movie = await _context.Movies.Where(m => m.Id == id).Select(m => new MovieDetailDto
@@ -68,9 +71,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
         return Ok(movie);
     }
 
-    // PUT: api/Movie/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{id}")]
+    [HttpPut("movies/{id}")]
     public async Task<IActionResult> PutMovie(int? id, [FromQuery] MovieUpdateDto movieDto)
     {
 
@@ -109,9 +110,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
         return Ok();
     }
 
-    // POST: api/Movie
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
+    [HttpPost("movies")]
     public async Task<ActionResult<MovieDto>> PostMovie([FromQuery]MovieDto movieDto)
     {
         var movie = new Movie() {
@@ -127,8 +126,7 @@ public class MoviesController(MovieApiContext context) : ControllerBase
         return CreatedAtAction("GetMovie", new MovieDto(), movie);
     }
 
-    // DELETE: api/Movie/5
-    [HttpDelete("{id}")]
+    [HttpDelete("movies/{id}")]
     public async Task<IActionResult> DeleteMovie(int? id)
     {
         var movie = await _context.Movies.FindAsync(id);
