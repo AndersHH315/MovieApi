@@ -76,8 +76,4 @@ public class ReviewsController(MovieApiContext context) : ControllerBase
         return NoContent();
     }
 
-    private bool ReviewExists(int? id)
-    {
-        return _context.Reviews.Any(e => e.Id == id);
-    }
 }
