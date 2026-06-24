@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Models;
 using MovieApi.Data;
+using MovieApi.DTOs;
 
 namespace MovieApi.Controllers;
 
@@ -18,20 +19,21 @@ public class ReviewsController(MovieApiContext context) : ControllerBase
         return await _context.Reviews.ToListAsync();
     }
 
-    // GET: api/Review/5
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Review>> GetReview(int id)
+    [HttpGet("{movieid}/movies")]
+    public async Task<ActionResult<ReviewDto>> GetReviewsForSpecificMovie(int movieid)
     {
-        var review = await _context.Reviews.FindAsync(id);
+        var review = await _context.Reviews.Where(r => r.MovieId == movieid).Select(r => new ReviewDto
+        {
+            ReviewerName = r.ReviewerName,
+            Comment = r.Comment,
+            Rating = r.Rating
+        }).ToListAsync();
 
         if (review == null)
-        {
             return NotFound();
-        }
 
-        return review;
+        return Ok(review);
     }
-
     // PUT: api/Review/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
@@ -63,15 +65,22 @@ public class ReviewsController(MovieApiContext context) : ControllerBase
         return NoContent();
     }
 
-    // POST: api/Review
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
-    public async Task<ActionResult<Review>> PostReview(Review review)
+    //POST: api/Review
+    //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPost("{movieid}")]
+    public async Task<ActionResult<ReviewDto>> PostReview(int? movieid, [FromQuery] ReviewDto reviewDto)
     {
+        var review = new Review
+        {
+            ReviewerName = reviewDto.ReviewerName,
+            Comment = reviewDto.Comment,
+            Rating = reviewDto.Rating,
+            MovieId = (int)movieid
+        };
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction("GetReview", new { id = review.Id }, review);
+        return CreatedAtAction("GetReview", new ReviewDto(), review);
     }
 
     // DELETE: api/Review/5

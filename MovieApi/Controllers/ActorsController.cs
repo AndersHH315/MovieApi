@@ -96,13 +96,13 @@ public class ActorsController(MovieApiContext context) : ControllerBase
         return CreatedAtAction("GetActor", new ActorDto(), actor);
     }
 
-    [HttpPost("{actorId}/movies/{movieId}")]
-    public async Task<ActionResult<Actor>> AddActorToMovie(int actorId, int movieId)
+    [HttpPost("{actorid}/movies/{movieid}")]
+    public async Task<ActionResult<Actor>> AddActorToMovie(int actorid, int movieid)
     {
         var selectedMovie = await _context.Movies
             .Include(m => m.Actors)
-            .FirstOrDefaultAsync(m => m.Id == movieId);
-        var selectedActor = await _context.Actors.FindAsync(actorId);
+            .FirstOrDefaultAsync(m => m.Id == movieid);
+        var selectedActor = await _context.Actors.FindAsync(actorid);
 
         if (selectedMovie == null || selectedActor == null)
             return NotFound();
