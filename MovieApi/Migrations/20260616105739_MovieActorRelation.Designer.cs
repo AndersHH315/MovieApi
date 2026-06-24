@@ -25,7 +25,7 @@ namespace MovieApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ActorMovie", b =>
+            modelBuilder.Entity("MovieActor", b =>
                 {
                     b.Property<int>("ActorsId")
                         .HasColumnType("int");
@@ -37,7 +37,7 @@ namespace MovieApi.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("ActorMovie");
+                    b.ToTable("MovieActor");
                 });
 
             modelBuilder.Entity("MovieApi.Models.Actor", b =>
@@ -157,7 +157,7 @@ namespace MovieApi.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("ActorMovie", b =>
+            modelBuilder.Entity("MovieActor", b =>
                 {
                     b.HasOne("MovieApi.Models.Actor", null)
                         .WithMany()
