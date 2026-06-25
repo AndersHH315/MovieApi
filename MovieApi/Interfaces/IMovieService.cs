@@ -11,6 +11,6 @@ namespace MovieApi.Interfaces
         Task<MovieDetailDto?> GetMovieDetailsAsync(int id);
         Task<Movie?> PutMovieAsync(int id, MovieUpdateDto movieDto);
         Task<Movie> PostMovieAsync(MovieDto movieDto);
-        Task<Movie?> DeleteMovie(int id);
+        Task<Movie?> DeleteMovieAsync(int id);
     }
 }

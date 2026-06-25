@@ -128,7 +128,7 @@ namespace MovieApi.Services
             return movie;
         }
 
-        public async Task<Movie?> DeleteMovie(int id)
+        public async Task<Movie?> DeleteMovieAsync(int id)
         {
             var movie = await _db.Movies.FindAsync(id);
 

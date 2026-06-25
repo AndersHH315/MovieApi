@@ -24,5 +24,36 @@ namespace MovieApi.Tests.Controllers
             var movie = Assert.IsType<MovieDto>(okResult.Value);
             Assert.Equal("Inception", movie.Title);
         }
+
+        [Fact]
+        public async Task GetAllMoviesAsync()
+        {
+
+        }
+
+        [Fact]
+        public async Task GetMovieDetails()
+        {
+
+        }
+
+        [Fact]
+        public async Task PutMovieAsync()
+        {
+
+        }
+
+        [Fact]
+        public async Task PostMovieAsync()
+        {
+
+        }
+
+        [Fact]
+        public async Task DeleteMovie()
+        {
+
+        }
     }
 }
+

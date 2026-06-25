@@ -58,7 +58,7 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     [HttpDelete("movies/{id}")]
     public async Task<IActionResult> DeleteMovie(int id)
     {
-        var movie = await _movieService.DeleteMovie(id);
+        var movie = await _movieService.DeleteMovieAsync(id);
 
         return Ok();
     }
