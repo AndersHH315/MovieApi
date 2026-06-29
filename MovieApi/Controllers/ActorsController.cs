@@ -1,92 +1,56 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using MovieApi.Models;
 using MovieApi.Data;
 using MovieApi.DTOs;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
+using MovieApi.Interfaces;
+using MovieApi.Models;
 
 namespace MovieApi.Controllers;
 [Route("api/")]
 [ApiController]
-public class ActorsController(MovieApiContext context) : ControllerBase
+public class ActorsController(IActorService actorService) : ControllerBase
 {
-    private readonly MovieApiContext _context = context;
+    private readonly IActorService _actorService = actorService;
 
     [HttpGet("actors")]
-    public async Task<ActionResult<IEnumerable<ActorDto>>> GetActor()
+    public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
     {
+        var actors = await _actorService.GetActorsAsync();
 
-        return await _context.Actors.Select(a => new ActorDto 
-        {
-            Name = a.Name,
-            BirthYear = a.BirthYear
-        }).ToListAsync();
+        if (actors == null)
+            return NotFound();
+
+        return Ok(actors);
     }
 
     [HttpGet("actors/{id}")]
-    public async Task<ActionResult<ActorDto>> GetActor(int id)
+    public async Task<ActionResult<ActorDto>> GetActorById(int id)
     {
-        var actor = await _context.Actors.Where(a => a.Id == id).Select(a => new ActorDto
-        {
-            Name = a.Name,
-            BirthYear = a.BirthYear
-        }).FirstOrDefaultAsync();
+        var actor = await _actorService.GetActorByIdAsync(id);
 
         if (actor == null)
-        {
             return NotFound();
-        }
 
         return Ok(actor);
     }
 
  
     [HttpPut("actors/{id}")]
-    public async Task<IActionResult> PutActor(int? id, [FromQuery] ActorDto actorDto)
+    public async Task<ActionResult<ActorDto>> PutActor(int id, [FromQuery] ActorDto actorDto)
     {
-        var actor = new Actor()
-        {
-            Id = _context.Actors.Where(a => a.Id == id).Select(a => a.Id).FirstOrDefault(),
-            Name = actorDto.Name,
-            BirthYear = actorDto.BirthYear
-        };
+        var actor = await _actorService.PutActorAsync(id, actorDto);
 
-        if (id != actor.Id)
-        {
+        if (actor == null)
             return BadRequest();
-        }
 
-        _context.Entry(actor).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ActorExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return Ok();
+        return Ok(actor);
     }
 
     [HttpPost("actors")]
     public async Task<ActionResult<ActorDto>> PostActor([FromQuery] ActorDto actorDto)
     {
-        var actor = new Actor()
-        {
-            Name = actorDto.Name,
-            BirthYear = actorDto.BirthYear
-        };
-        _context.Actors.Add(actor);
-        await _context.SaveChangesAsync();
+        var actor = await _actorService.PostActorAsync(actorDto);
 
         return CreatedAtAction("GetActor", new ActorDto(), actor);
     }
@@ -94,36 +58,23 @@ public class ActorsController(MovieApiContext context) : ControllerBase
     [HttpPost("movies/{movieid}/actors/{actorid}")]
     public async Task<ActionResult<Actor>> AddActorToMovie(int actorid, int movieid)
     {
-        var selectedMovie = await _context.Movies
-            .Include(m => m.Actors)
-            .FirstOrDefaultAsync(m => m.Id == movieid);
-        var selectedActor = await _context.Actors.FindAsync(actorid);
+        var actorToMovie = await _actorService.AddActorToMovieAsync(actorid, movieid);
 
-        if (selectedMovie == null || selectedActor == null)
+        if (actorToMovie == null)
             return NotFound();
 
-        selectedMovie.Actors.Add(selectedActor);
-        await _context.SaveChangesAsync();
-        return Ok();
+        return Ok(actorToMovie);
     }
 
     [HttpDelete("actors/{id}")]
-    public async Task<IActionResult> DeleteActor(int? id)
+    public async Task<ActionResult<ActorDto>> DeleteActor(int id)
     {
-        var actor = await _context.Actors.FindAsync(id);
+        var actor = await _actorService.DeleteActorAsync(id);
+
         if (actor == null)
-        {
             return NotFound();
-        }
 
-        _context.Actors.Remove(actor);
-        await _context.SaveChangesAsync();
-
-        return Ok();
+        return NoContent();
     }
 
-    private bool ActorExists(int? id)
-    {
-        return _context.Actors.Any(e => e.Id == id);
-    }
 }

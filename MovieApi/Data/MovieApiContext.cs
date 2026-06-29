@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MovieApi.Interfaces;
 using MovieApi.Models;
 
 namespace MovieApi.Data;
 
-public class MovieApiContext(DbContextOptions<MovieApiContext> options) : DbContext(options)
+public class MovieApiContext(DbContextOptions<MovieApiContext> options) : DbContext(options), IMovieApiContext
 {
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Genre> Genres { get; set; }

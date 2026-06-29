@@ -3,24 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Models;
 using MovieApi.Data;
 using MovieApi.DTOs;
+using MovieApi.Interfaces;
 
 namespace MovieApi.Controllers;
 
 [Route("api/")]
 [ApiController]
-public class ReviewsController(MovieApiContext context) : ControllerBase
+public class ReviewsController(IReviewService reviewService) : ControllerBase
 {
-    private readonly MovieApiContext _context = context;
+    private readonly IReviewService _reviewService = reviewService;
 
     [HttpGet("reviews")]
-    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReview()
+    public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
     {
-        var reviews = await _context.Reviews.Select(r => new ReviewDto 
-        {
-            ReviewerName = r.ReviewerName,
-            Comment = r.Comment,
-            Rating = r.Rating
-        }).ToListAsync();
+        var reviews = await _reviewService.GetReviewsAsync();
 
         if (reviews == null)
             return NotFound();
@@ -31,47 +27,37 @@ public class ReviewsController(MovieApiContext context) : ControllerBase
     [HttpGet("movies/{movieid}/reviews")]
     public async Task<ActionResult<ReviewDto>> GetReviewsForSpecificMovie(int movieid)
     {
-        var review = await _context.Reviews.Where(r => r.MovieId == movieid).Select(r => new ReviewDto
-        {
-            ReviewerName = r.ReviewerName,
-            Comment = r.Comment,
-            Rating = r.Rating
-        }).ToListAsync();
+        var review = await _reviewService.GetReviewsForSpecificMovieAsync(movieid);
 
         if (review == null)
             return NotFound();
+
+        var reviewDto = new ReviewDto
+        {
+            ReviewerName = review.Select(r => r.ReviewerName).First(),
+            Comment = review.Select(r => r.Comment).First(),
+            Rating = review.Select(r => r.Rating).First()
+        };
 
         return Ok(review);
     }
 
 
     [HttpPost("movies/{movieid}/reviews")]
-    public async Task<ActionResult<ReviewDto>> PostReview(int? movieid, [FromQuery] ReviewDto reviewDto)
+    public async Task<ActionResult<ReviewDto>> PostReview(int movieid, [FromQuery] ReviewDto reviewDto)
     {
-        var review = new Review
-        {
-            ReviewerName = reviewDto.ReviewerName,
-            Comment = reviewDto.Comment,
-            Rating = reviewDto.Rating,
-            MovieId = (int)movieid
-        };
-        _context.Reviews.Add(review);
-        await _context.SaveChangesAsync();
+        var review = await _reviewService.PostReviewAsync(movieid, reviewDto);
 
-        return CreatedAtAction("GetReview", new ReviewDto(), review);
+        return CreatedAtAction("GetReviews", new ReviewDto(), review);
     }
 
     [HttpDelete("reviews/{id}")]
-    public async Task<IActionResult> DeleteReview(int? id)
+    public async Task<ActionResult<ReviewDto>> DeleteReview(int id)
     {
-        var review = await _context.Reviews.FindAsync(id);
-        if (review == null)
-        {
-            return NotFound();
-        }
+        var review = await _reviewService.DeleteReviewAsync(id);
 
-        _context.Reviews.Remove(review);
-        await _context.SaveChangesAsync();
+        if (review == null)
+            return NotFound();
 
         return NoContent();
     }
