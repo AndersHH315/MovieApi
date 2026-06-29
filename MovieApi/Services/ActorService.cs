@@ -27,7 +27,7 @@ namespace MovieApi.Services
             return actors;
         }
 
-        public async Task<ActorDto?> GetActorAsync(int id)
+        public async Task<ActorDto?> GetActorByIdAsync(int id)
         {
             var actor = await _db.Actors.FindAsync(id);
 

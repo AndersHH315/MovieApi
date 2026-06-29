@@ -18,24 +18,33 @@ public class ActorsController(IActorService actorService) : ControllerBase
     {
         var actors = await _actorService.GetActorsAsync();
 
+        if (actors == null)
+            return NotFound();
+
         return Ok(actors);
     }
 
     [HttpGet("actors/{id}")]
-    public async Task<ActionResult<ActorDto>> GetActor(int id)
+    public async Task<ActionResult<ActorDto>> GetActorById(int id)
     {
-        var actor = await _actorService.GetActorAsync(id);
+        var actor = await _actorService.GetActorByIdAsync(id);
+
+        if (actor == null)
+            return NotFound();
 
         return Ok(actor);
     }
 
  
     [HttpPut("actors/{id}")]
-    public async Task<IActionResult> PutActor(int id, [FromQuery] ActorDto actorDto)
+    public async Task<ActionResult<ActorDto>> PutActor(int id, [FromQuery] ActorDto actorDto)
     {
         var actor = await _actorService.PutActorAsync(id, actorDto);
 
-        return Ok();
+        if (actor == null)
+            return BadRequest();
+
+        return Ok(actor);
     }
 
     [HttpPost("actors")]
@@ -51,15 +60,21 @@ public class ActorsController(IActorService actorService) : ControllerBase
     {
         var actorToMovie = await _actorService.AddActorToMovieAsync(actorid, movieid);
 
-        return Ok();
+        if (actorToMovie == null)
+            return NotFound();
+
+        return Ok(actorToMovie);
     }
 
     [HttpDelete("actors/{id}")]
-    public async Task<IActionResult> DeleteActor(int id)
+    public async Task<ActionResult<ActorDto>> DeleteActor(int id)
     {
         var actor = await _actorService.DeleteActorAsync(id);
 
-        return Ok();
+        if (actor == null)
+            return NotFound();
+
+        return NoContent();
     }
 
 }

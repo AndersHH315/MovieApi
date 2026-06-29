@@ -19,6 +19,9 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     {
         var movies = await _movieService.GetAllMoviesAsync();
 
+        if (movies == null)
+            return NotFound();
+
         return Ok(movies);
     }
 
@@ -27,24 +30,33 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     {
         var movie = await _movieService.GetMovieByIdAsync(id);
 
+        if (movie == null)
+            return NotFound();
+
         return Ok(movie);
     }
 
     [HttpGet("movies/{id}/details")]
-    public async Task<ActionResult<IEnumerable<MovieDetailDto>>> GetMovieDetails(int id)
+    public async Task<ActionResult<MovieDetailDto>> GetMovieDetails(int id)
     {
         var movie = await _movieService.GetMovieDetailsAsync(id);
+
+        if (movie == null)
+            return NotFound();
  
         return Ok(movie);
     }
 
     [HttpPut("movies/{id}")]
-    public async Task<IActionResult> PutMovie(int id, [FromQuery] MovieUpdateDto movieDto)
+    public async Task<ActionResult<MovieDto>> PutMovie(int id, [FromQuery] MovieUpdateDto movieDto)
     {
 
         var movie = await _movieService.PutMovieAsync(id, movieDto);
 
-        return Ok();
+        if (movie == null)
+            return BadRequest();
+
+        return Ok(movie);
     }
 
     [HttpPost("movies")]
@@ -56,10 +68,13 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     }
 
     [HttpDelete("movies/{id}")]
-    public async Task<IActionResult> DeleteMovie(int id)
+    public async Task<ActionResult<MovieDto>> DeleteMovie(int id)
     {
         var movie = await _movieService.DeleteMovieAsync(id);
 
-        return Ok();
+        if (movie == null)
+            return NotFound();
+
+        return NoContent();
     }
 }

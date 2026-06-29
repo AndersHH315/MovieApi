@@ -29,9 +29,9 @@ namespace MovieApi.Services
             return reviews;
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid)
+        public async Task<IEnumerable<Review>> GetReviewsForSpecificMovieAsync(int movieid)
         {
-            var movieReview = await _db.Reviews.Where(r => r.MovieId == movieid).Select(r => new ReviewDto
+            var movieReview = await _db.Reviews.Where(r => r.MovieId == movieid).Select(r => new Review
             {
                 ReviewerName = r.ReviewerName,
                 Comment = r.Comment,
