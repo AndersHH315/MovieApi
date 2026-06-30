@@ -6,13 +6,10 @@ using MovieApi.Models;
 
 namespace MovieApi.Services
 {
-    public class ActorService : IActorService
+    public class ActorService(IMovieApiContext db) : IActorService
     {
-        private readonly IMovieApiContext _db;
-        public ActorService(IMovieApiContext db)
-        {
-            _db = db;
-        }
+        private readonly IMovieApiContext _db = db;
+
         public async Task<IEnumerable<ActorDto?>?> GetActorsAsync()
         {
             var actors = await _db.Actors.Select(a => new ActorDto

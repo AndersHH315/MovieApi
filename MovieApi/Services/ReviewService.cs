@@ -6,13 +6,9 @@ using MovieApi.Models;
 
 namespace MovieApi.Services
 {
-    public class ReviewService : IReviewService
+    public class ReviewService(IMovieApiContext db) : IReviewService
     {
-        private readonly IMovieApiContext _db;
-        public ReviewService(IMovieApiContext db)
-        {
-            _db = db;
-        }
+        private readonly IMovieApiContext _db = db;
 
         public async Task<IEnumerable<ReviewDto?>?> GetReviewsAsync()
         {
@@ -33,16 +29,23 @@ namespace MovieApi.Services
         {
             var movieReview = await _db.Reviews.Where(r => r.MovieId == movieid).Select(r => new Review
             {
+                Id = r.Id,
                 ReviewerName = r.ReviewerName,
                 Comment = r.Comment,
-                Rating = r.Rating
+                Rating = r.Rating,
+                MovieId = r.MovieId
             }).ToListAsync();
 
             return movieReview;
         }
 
-        public async Task<Review> PostReviewAsync(int movieid, ReviewDto reviewDto)
+        public async Task<Review?> PostReviewAsync(int movieid, ReviewDto reviewDto)
         {
+            var movie = await _db.Movies.FindAsync(movieid);
+
+            if (movie == null)
+                return null;
+
             var review = new Review
             {
                 ReviewerName = reviewDto.ReviewerName,
