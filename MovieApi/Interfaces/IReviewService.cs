@@ -8,7 +8,7 @@ namespace MovieApi.Interfaces
     {
         Task<IEnumerable<ReviewDto?>?> GetReviewsAsync();
         Task<IEnumerable<Review>> GetReviewsForSpecificMovieAsync(int movieid);
-        Task<Review> PostReviewAsync(int movieid, ReviewDto reviewDto);
+        Task<Review?> PostReviewAsync(int movieid, ReviewDto reviewDto);
         Task<Review?> DeleteReviewAsync(int id);
     }
 }

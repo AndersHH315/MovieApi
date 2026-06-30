@@ -7,12 +7,23 @@ using MovieApi.Models;
 
 namespace MovieApi.Services
 {
-    public class MovieService : IMovieService
+    public class MovieService(IMovieApiContext db) : IMovieService
     {
-        private readonly IMovieApiContext _db;
-        public MovieService(IMovieApiContext db)
+        private readonly IMovieApiContext _db = db;
+
+        public async Task<IEnumerable<MovieDto?>?> GetAllMoviesAsync()
         {
-            _db = db;
+            var movies = await _db.Movies.Select(m => new MovieDto
+                {
+                    Title = m.Title,
+                    Year = m.Year,
+                    Duration = m.Duration,
+                    Genre = m.Genres != null ? m.Genres.GenreType : null
+                }).ToListAsync();
+            if (movies.Count == 0)
+                return null;
+
+            return movies;
         }
         public async Task<MovieDto?> GetMovieByIdAsync(int id)
         {
@@ -31,20 +42,6 @@ namespace MovieApi.Services
                 Genre = movie.Genres?.GenreType ?? "No Genre"
             };
             return movieDto;
-        }
-        public async Task<IEnumerable<MovieDto?>?> GetAllMoviesAsync()
-        {
-            var movies = await _db.Movies.Select(m => new MovieDto
-                {
-                    Title = m.Title,
-                    Year = m.Year,
-                    Duration = m.Duration,
-                    Genre = m.Genres != null ? m.Genres.GenreType : null
-                }).ToListAsync();
-            if (movies.Count == 0)
-                return null;
-
-            return movies;
         }
 
         public async Task<MovieDetailDto?> GetMovieDetailsAsync(int id)

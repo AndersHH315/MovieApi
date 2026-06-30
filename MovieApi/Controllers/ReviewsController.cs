@@ -32,14 +32,14 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
         if (review == null)
             return NotFound();
 
-        var reviewDto = new ReviewDto
+        var reviewDto = review.Select(r => new ReviewDto
         {
-            ReviewerName = review.Select(r => r.ReviewerName).First(),
-            Comment = review.Select(r => r.Comment).First(),
-            Rating = review.Select(r => r.Rating).First()
-        };
+            ReviewerName = r.ReviewerName,
+            Comment = r.Comment,
+            Rating = r.Rating
+        });
 
-        return Ok(review);
+        return Ok(reviewDto);
     }
 
 

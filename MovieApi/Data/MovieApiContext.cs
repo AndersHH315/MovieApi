@@ -6,6 +6,7 @@ namespace MovieApi.Data;
 
 public class MovieApiContext(DbContextOptions<MovieApiContext> options) : DbContext(options), IMovieApiContext
 {
+
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Actor> Actors { get; set; }
