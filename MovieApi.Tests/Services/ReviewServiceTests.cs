@@ -1,12 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Models;
 using MovieApi.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MovieApi.Tests.InterfaceSetups;
 
 namespace MovieApi.Tests.Services;
 
@@ -23,7 +20,8 @@ public  class ReviewServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new ReviewService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new ReviewService(unit);
 
         var review = new Review
         {
@@ -57,7 +55,6 @@ public  class ReviewServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("Alice", result.Single().ReviewerName);
-        Assert.Equal(1, result.Single().MovieId);
 
     }
 
@@ -71,7 +68,8 @@ public  class ReviewServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new ReviewService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new ReviewService(unit);
 
         context.Reviews.AddRange(
             new Review
@@ -119,15 +117,23 @@ public  class ReviewServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new ReviewService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new ReviewService(unit);
 
         context.Movies.Add(new Movie
         {
             Id = 1,
             Title = "Inception",
             Year = new DateTime(2010, 7, 16),
-            Duration = 148
+            Duration = 148,
+            GenreId = 1 
         });
+        var genre = new Genre
+        {
+            Id = 1,
+            GenreType = "Sci-Fi"
+        };
+        context.Genres.Add(genre);
 
         await context.SaveChangesAsync();
 
@@ -146,7 +152,6 @@ public  class ReviewServiceTests
         Assert.Equal("Alice", result.ReviewerName);
         Assert.Equal("Really cool movie! Especially that action trick!", result.Comment);
         Assert.Equal(5, result.Rating);
-        Assert.Equal(1, result.MovieId);
 
     }
 
@@ -160,7 +165,8 @@ public  class ReviewServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new ReviewService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new ReviewService(unit);
 
         context.Reviews.Add(new Review
         {

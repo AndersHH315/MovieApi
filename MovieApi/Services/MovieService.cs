@@ -1,142 +1,114 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DomainContracts;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 
-namespace MovieApi.Services
+namespace MovieApi.Services;
+
+public class MovieService(IUnitOfWork unit) : IMovieService
 {
-    public class MovieService(IMovieApiContext db) : IMovieService
+    private readonly IUnitOfWork _unit = unit;
+
+    public async Task<IEnumerable<MovieDto?>?> GetAllMoviesAsync()
     {
-        private readonly IMovieApiContext _db = db;
-
-        public async Task<IEnumerable<MovieDto?>?> GetAllMoviesAsync()
+        var movies = await _unit.Movies.GetAllAsync();
+        return movies.Select(m => new MovieDto
         {
-            var movies = await _db.Movies.Select(m => new MovieDto
-                {
-                    Title = m.Title,
-                    Year = m.Year,
-                    Duration = m.Duration,
-                    Genre = m.Genres != null ? m.Genres.GenreType : null
-                }).ToListAsync();
-            if (movies.Count == 0)
-                return null;
+            Title = m.Title,
+            Year = m.Year,
+            Duration = m.Duration,
+            Genre = m.Genre.GenreType
+        });
+    }
+    public async Task<MovieDto?> GetMovieByIdAsync(int id)
+    {
+        var movie = await _unit.Movies.GetMovieAsync(id);
 
-            return movies;
-        }
-        public async Task<MovieDto?> GetMovieByIdAsync(int id)
+        if (movie == null)
+            return null;
+
+        var movieDto = new MovieDto
         {
-            var movie = await _db.Movies
-                .Include(g => g.Genres)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Title = movie.Title,
+            Year = movie.Year,
+            Duration = movie.Duration,
+            Genre = movie.Genre.GenreType
+        };
+        return movieDto;
+    }
 
-            if (movie == null)
-                return null;
+    public async Task<MovieDetailDto?> GetMovieDetailsAsync(int id)
+    {
+        var movie = await _unit.Movies.GetMovieDetailsById(id);
 
-            var movieDto = new MovieDto
-            {
-                Title = movie.Title,
-                Year = movie.Year,
-                Duration = movie.Duration,
-                Genre = movie.Genres?.GenreType ?? "No Genre"
-            };
-            return movieDto;
-        }
+        if (movie == null)
+            return null;
 
-        public async Task<MovieDetailDto?> GetMovieDetailsAsync(int id)
+        var movieDetailsDto = new MovieDetailDto
         {
-            var movie = await _db.Movies
-                .Include(r => r.Reviews)
-                .Include(a => a.Actors)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Title = movie.Title,
+            Year = movie.Year,
+            Duration = movie.Duration,
+            Genre = movie.Genre.GenreType,
+            Synopsis = movie.MovieDetails.Synopsis,
+            Language = movie.MovieDetails.Language,
+            Budget = movie.MovieDetails.Budget,
+            Reviews = movie.Reviews.Select(r => new ReviewDto { ReviewerName = r.ReviewerName, Comment = r.Comment, Rating = r.Rating }).ToList(),
+            Actors = movie.Actors.Select(a => new ActorDto { Name = a.Name, BirthYear = a.BirthYear }).ToList()
+        };
+   
+        return movieDetailsDto;
+    }
 
-            if (movie == null)
-                return null;
+    public async Task<Movie?> PutMovieAsync(int id, MovieUpdateDto movieDto)
+    {
+        var movie = await _unit.Movies.GetMovieAsync(id);
 
-            var movieGenre = await _db.Genres
-                .Where(g => g.Id == movie.GenreId).Select(g => g.GenreType)
-                .FirstOrDefaultAsync();
+        if (movie == null)
+            return null;
 
-            if (movieGenre == null)
-                return null;
+        movie.Title = movieDto.Title;
+        movie.Year = movieDto.Year;
+        movie.Duration = movieDto.Duration;
+        movie.Genre.GenreType = movieDto.Genre;
 
-            var movieDetails = await _db.MovieDetails
-                .Where(m => m.MovieId == movie.Id)
-                .FirstOrDefaultAsync();
+        _unit.Movies.Update(movie);
+        await _unit.SaveAsync();
 
-            if (movieDetails == null)
-                return null;
+        return movie;
 
-            var movieDetailsDto = new MovieDetailDto
-            {
-                Title = movie.Title,
-                Year = movie.Year,
-                Duration = movie.Duration,
-                Genre = movieGenre,
-                Synopsis = movieDetails.Synopsis,
-                Language = movieDetails.Language,
-                Budget = movieDetails.Budget,
-                Reviews = movie.Reviews.Select(r => new ReviewDto { ReviewerName = r.ReviewerName, Comment = r.Comment, Rating = r.Rating }).ToList(),
-                Actors = movie.Actors.Select(a => new ActorDto { Name = a.Name, BirthYear = a.BirthYear }).ToList()
-            };
-       
-            return movieDetailsDto;
-        }
+    }
 
-        public async Task<Movie?> PutMovieAsync(int id, MovieUpdateDto movieDto)
+    public async Task<Movie> PostMovieAsync(MovieCreateDto movieCreateDto)
+    {
+        var movie = new Movie()
         {
-            var movie = await _db.Movies.FindAsync(id);
+            Title = movieCreateDto.Title,
+            Year = movieCreateDto.Year,
+            Duration = movieCreateDto.Duration,
+            GenreId = movieCreateDto.GenreId
+        };
 
-            if (movie == null)
-                return null;
+        _unit.Movies.Add(movie);
+        await _unit.SaveAsync();
 
-            movie.Title = movieDto.Title;
-            movie.Year = movieDto.Year;
-            movie.Duration = movieDto.Duration;
+        return movie;
+    }
 
-            var genre = await _db.Genres
-                .Where(g => g.GenreType == movieDto.Genre)
-                .FirstOrDefaultAsync();
+    public async Task<Movie?> DeleteMovieAsync(int id)
+    {
+        var movie = await _unit.Movies.GetMovieAsync(id);
 
-            if (genre != null)
-                movie.GenreId = genre.Id;
+        if (movie == null)
+            return null;
 
-            _db.Movies.Entry(movie).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
+        _unit.Movies.Remove(movie);
+        await _unit.SaveAsync();
 
-            return movie;
+        return movie;
 
-        }
-
-        public async Task<Movie> PostMovieAsync(MovieDto movieDto)
-        {
-            var movie = new Movie()
-            {
-                Title = movieDto.Title,
-                Year = movieDto.Year,
-                Duration = movieDto.Duration,
-                GenreId = _db.Genres.Where(g => g.GenreType == movieDto.Genre).Select(g => g.Id).FirstOrDefault()
-            };
-
-            _db.Movies.Add(movie);
-            await _db.SaveChangesAsync();
-
-            return movie;
-        }
-
-        public async Task<Movie?> DeleteMovieAsync(int id)
-        {
-            var movie = await _db.Movies.FindAsync(id);
-
-            if (movie == null)
-                return null;
-
-            _db.Movies.Remove(movie);
-            await _db.SaveChangesAsync();
-
-            return movie;
-
-        }
     }
 }

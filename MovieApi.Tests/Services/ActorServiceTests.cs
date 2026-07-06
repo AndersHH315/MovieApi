@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MovieApi.Core.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Models;
+using MovieApi.Core.DTOs;
 using MovieApi.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MovieApi.Tests.InterfaceSetups;
 
 namespace MovieApi.Tests.Services
 {
@@ -21,7 +19,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
 
             context.Actors.Add(new Actor
@@ -52,7 +51,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
             context.Actors.AddRange(
                 new Actor
@@ -97,7 +97,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
             var actor = new ActorDto
             {
@@ -125,7 +126,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
             context.Actors.Add(
             new Actor
@@ -163,7 +165,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
             context.Genres.Add(new Genre
             {
@@ -193,12 +196,11 @@ namespace MovieApi.Tests.Services
             await context.SaveChangesAsync();
 
             // Act
-            var result = await service.AddActorToMovieAsync(1, 1);
+            var result = service.AddActorToMovieAsync(1, 1);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(actor.Id, result.Id);
-            Assert.Equal(actor.Name, result.Name);
 
             var checkIfActorInMovie = await context.Movies
                 .Include(m => m.Actors)
@@ -219,7 +221,8 @@ namespace MovieApi.Tests.Services
 
             using var context = new MovieApiContext(options);
 
-            var service = new ActorService(context);
+            var unit = new TestSetupUnitOfWork(context);
+            var service = new ActorService(unit);
 
             context.Actors.Add(new Actor
             {

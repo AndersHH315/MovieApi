@@ -1,74 +1,76 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DomainContracts;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 
-namespace MovieApi.Services
+namespace MovieApi.Services;
+
+// Use DTO's here! Move them from controller to here and do db calls through repositories!
+public class ReviewService(IUnitOfWork unit) : IReviewService
 {
-    public class ReviewService(IMovieApiContext db) : IReviewService
+    private readonly IUnitOfWork _unit = unit;
+
+    public async Task<IEnumerable<ReviewDto?>?> GetReviewsAsync()
     {
-        private readonly IMovieApiContext _db = db;
-
-        public async Task<IEnumerable<ReviewDto?>?> GetReviewsAsync()
+        var reviews = await _unit.Reviews.GetAllAsync();
+        return reviews.Select(r => new ReviewDto
         {
-            var reviews = await _db.Reviews.Select(r => new ReviewDto
-            {
-                ReviewerName = r.ReviewerName,
-                Comment = r.Comment,
-                Rating = r.Rating
-            }).ToListAsync();
+            ReviewerName = r.ReviewerName,
+            Comment = r.Comment,
+            Rating = r.Rating
+        });
+    }
 
-            if (reviews.Count == 0)
-                return null;
-
-            return reviews;
-        }
-
-        public async Task<IEnumerable<Review>> GetReviewsForSpecificMovieAsync(int movieid)
+    public async Task<IEnumerable<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid)
+    {
+        var movieReview = await _unit.Reviews.GetReviewsByMovieId(movieid);
+        return movieReview.Select(r => new ReviewDto
         {
-            var movieReview = await _db.Reviews.Where(r => r.MovieId == movieid).Select(r => new Review
-            {
-                Id = r.Id,
-                ReviewerName = r.ReviewerName,
-                Comment = r.Comment,
-                Rating = r.Rating,
-                MovieId = r.MovieId
-            }).ToListAsync();
+            ReviewerName = r.ReviewerName,
+            Comment = r.Comment,
+            Rating = r.Rating
+        });
+    }
 
-            return movieReview;
-        }
+    public async Task<ReviewDto?> PostReviewAsync(int movieid, ReviewDto reviewDto)
+    {
+        var movie = await _unit.Movies.GetMovieAsync(movieid);
 
-        public async Task<Review?> PostReviewAsync(int movieid, ReviewDto reviewDto)
+        if (movie == null)
+            return null;
+
+        var review = new Review
         {
-            var movie = await _db.Movies.FindAsync(movieid);
+            ReviewerName = reviewDto.ReviewerName,
+            Comment = reviewDto.Comment,
+            Rating = reviewDto.Rating,
+            MovieId = movieid
+        };
 
-            if (movie == null)
-                return null;
+        _unit.Reviews.Add(review);
+        await _unit.SaveAsync();
 
-            var review = new Review
-            {
-                ReviewerName = reviewDto.ReviewerName,
-                Comment = reviewDto.Comment,
-                Rating = reviewDto.Rating,
-                MovieId = (int)movieid
-            };
-            _db.Reviews.Add(review);
-            await _db.SaveChangesAsync();
-
-            return review;
-        }
-
-        public async Task<Review?> DeleteReviewAsync(int id)
+        var newReview = new ReviewDto
         {
-            var review = await _db.Reviews.FindAsync(id);
-            if (review == null)
-                return null;
+            ReviewerName = review.ReviewerName,
+            Comment = review.Comment,
+            Rating = review.Rating
+        };
 
-            _db.Reviews.Remove(review);
-            await _db.SaveChangesAsync();
+        return newReview;
+    }
 
-            return review;
-        }
+    public async Task<Review?> DeleteReviewAsync(int id)
+    {
+        var review = await _unit.Reviews.GetReviewAsync(id);
+        if (review == null)
+            return null;
+
+        _unit.Reviews.Remove(review);
+        await _unit.SaveAsync();
+
+        return review;
     }
 }

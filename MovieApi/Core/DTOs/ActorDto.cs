@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
-namespace MovieApi.DTOs
+namespace MovieApi.Core.DTOs
 {
     public class ActorDto
     {

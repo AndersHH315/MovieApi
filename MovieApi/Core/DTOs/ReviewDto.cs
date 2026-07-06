@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MovieApi.DTOs
+namespace MovieApi.Core.DTOs
 {
     public class ReviewDto
     {

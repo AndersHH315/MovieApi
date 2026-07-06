@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using MovieApi.Controllers;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -99,7 +99,7 @@ public class ActorsControllerTests
 
         // Act
         var result = await controller.PutActor(1, actorDto);
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
         var actorResult = Assert.IsType<Actor>(okResult.Value);
 
         // Assert
@@ -130,7 +130,7 @@ public class ActorsControllerTests
 
         // Act
         var result = await controller.PostActor(actorDto);
-        var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var checkActor = Assert.IsType<Actor>(createdResult.Value);
 
         // Assert
@@ -150,15 +150,14 @@ public class ActorsControllerTests
         };
 
         var mockService = new Mock<IActorService>();
-        mockService.Setup(s => s.AddActorToMovieAsync(1, 2))
-            .ReturnsAsync(actor);
+        mockService.Setup(s => s.AddActorToMovieAsync(1, 2));
         var controller = new ActorsController(mockService.Object);
 
         // Act
         var result = await controller.AddActorToMovie(1, 2);
 
         // Assert
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<NoContentResult>(result);
     }
 
     [Fact]
@@ -180,6 +179,6 @@ public class ActorsControllerTests
         var result = await controller.DeleteActor(1);
         
         // Assert
-        Assert.IsType<NoContentResult>(result.Result);
+        Assert.IsType<NoContentResult>(result);
     }
 }
