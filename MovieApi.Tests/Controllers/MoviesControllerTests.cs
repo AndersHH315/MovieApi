@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using MovieApi.Controllers;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -136,7 +136,7 @@ public class MoviesControllerTests
 
         // Act
         var result = await controller.PutMovie(1, movieUpdateDto);
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
         var movieResult = Assert.IsType<Movie>(okResult.Value);
 
         // Assert
@@ -149,7 +149,7 @@ public class MoviesControllerTests
     public async Task CreateMovie()
     {
         // Arrange
-        var movieDto = new MovieDto
+        var movieDto = new MovieCreateDto
         {
             Title = "Inception",
             Year = new DateTime(2010, 07, 16),
@@ -171,7 +171,7 @@ public class MoviesControllerTests
 
         // Act
         var result = await controller.PostMovie(movieDto);
-        var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var checkMovie = Assert.IsType<Movie>(createdResult.Value);
 
         // Assert
@@ -200,7 +200,7 @@ public class MoviesControllerTests
         var result = await controller.DeleteMovie(1);
 
         // Assert
-        Assert.IsType<NoContentResult>(result.Result);
+        Assert.IsType<NoContentResult>(result);
     }
 }
 

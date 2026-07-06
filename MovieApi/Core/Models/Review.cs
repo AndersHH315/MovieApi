@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MovieApi.Models;
+namespace MovieApi.Core.Models;
 
 public class Review
 {

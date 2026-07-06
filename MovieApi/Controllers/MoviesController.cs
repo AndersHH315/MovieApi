@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Services.Contracts;
 
 
 namespace MovieApi.Controllers;
@@ -48,7 +48,7 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     }
 
     [HttpPut("movies/{id}")]
-    public async Task<ActionResult<MovieDto>> PutMovie(int id, [FromQuery] MovieUpdateDto movieDto)
+    public async Task<IActionResult> PutMovie(int id, [FromQuery] MovieUpdateDto movieDto)
     {
 
         var movie = await _movieService.PutMovieAsync(id, movieDto);
@@ -60,20 +60,17 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     }
 
     [HttpPost("movies")]
-    public async Task<ActionResult<MovieDto>> PostMovie([FromQuery]MovieDto movieDto)
+    public async Task<IActionResult> PostMovie([FromBody]MovieCreateDto movieCreateDto)
     {
-        var movie = await _movieService.PostMovieAsync(movieDto);
+        var movie = await _movieService.PostMovieAsync(movieCreateDto);
 
-        return CreatedAtAction("GetMovies", new MovieDto(), movie);
+        return CreatedAtAction("GetMovies", new MovieCreateDto(), movie);
     }
 
     [HttpDelete("movies/{id}")]
-    public async Task<ActionResult<MovieDto>> DeleteMovie(int id)
+    public async Task<IActionResult> DeleteMovie(int id)
     {
-        var movie = await _movieService.DeleteMovieAsync(id);
-
-        if (movie == null)
-            return NotFound();
+        await _movieService.DeleteMovieAsync(id);
 
         return NoContent();
     }

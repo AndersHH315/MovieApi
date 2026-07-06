@@ -1,100 +1,86 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DomainContracts;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 
-namespace MovieApi.Services
+namespace MovieApi.Services;
+
+public class ActorService(IUnitOfWork unit) : IActorService
 {
-    public class ActorService(IMovieApiContext db) : IActorService
+    private readonly IUnitOfWork _unit = unit;
+
+    public async Task<IEnumerable<ActorDto?>?> GetActorsAsync()
     {
-        private readonly IMovieApiContext _db = db;
-
-        public async Task<IEnumerable<ActorDto?>?> GetActorsAsync()
+        var actors = await _unit.Actors.GetAllAsync();
+        return actors.Select(a => new ActorDto
         {
-            var actors = await _db.Actors.Select(a => new ActorDto
-            {
-                Name = a.Name,
-                BirthYear = a.BirthYear
-            }).ToListAsync();
+            Name = a.Name,
+            BirthYear = a.BirthYear
+        });
+    }
 
-            if (actors.Count == 0)
-                return null;
+    public async Task<ActorDto?> GetActorByIdAsync(int id)
+    {
+        var actor = await _unit.Actors.GetActorAsync(id);
 
-            return actors;
-        }
+        if (actor == null)
+            return null;
 
-        public async Task<ActorDto?> GetActorByIdAsync(int id)
+        var actorDto = new ActorDto
         {
-            var actor = await _db.Actors.FindAsync(id);
+            Name = actor.Name,
+            BirthYear = actor.BirthYear
+        };
+        return actorDto;
+    }
 
-            if (actor == null)
-                return null;
+    public async Task<Actor?> PutActorAsync(int id, ActorDto actorDto)
+    {
+        var actor = await _unit.Actors.GetActorAsync(id);
 
-            var actorDto = new ActorDto
-            {
-                Name = actor.Name,
-                BirthYear = actor.BirthYear
-            };
-            return actorDto;
-        }
+        if (actor == null)
+            return null;
 
-        public async Task<Actor?> PutActorAsync(int id, ActorDto actorDto)
+        actor.Name = actorDto.Name;
+        actor.BirthYear = actorDto.BirthYear;
+
+        _unit.Actors.Update(actor);
+        await _unit.SaveAsync();
+
+        return actor;
+    }
+
+    public async Task<Actor> PostActorAsync(ActorDto actorDto)
+    {
+        var actor = new Actor()
         {
-            var actor = await _db.Actors.FindAsync(id);
+            Name = actorDto.Name,
+            BirthYear = actorDto.BirthYear
+        };
+        _unit.Actors.Add(actor);
+        await _unit.SaveAsync();
 
-            if (actor == null)
-                return null;
+        return actor;
+    }
 
-            actor.Name = actorDto.Name;
-            actor.BirthYear = actorDto.BirthYear;
+    public async Task AddActorToMovieAsync(int actorid, int movieid)
+    {
+        await _unit.Actors.AddActorToMovie(actorid, movieid);
+        await _unit.SaveAsync();
 
-            _db.Actors.Entry(actor).State = EntityState.Modified;
+    }
 
-            await _db.SaveChangesAsync();
+    public async Task<Actor?> DeleteActorAsync(int id)
+    {
+        var actor = await _unit.Actors.GetActorAsync(id);
+        if (actor == null)
+            return null;
+  
+        _unit.Actors.Remove(actor);
+        await _unit.SaveAsync();
 
-            return actor;
-        }
-
-        public async Task<Actor> PostActorAsync(ActorDto actorDto)
-        {
-            var actor = new Actor()
-            {
-                Name = actorDto.Name,
-                BirthYear = actorDto.BirthYear
-            };
-            _db.Actors.Add(actor);
-            await _db.SaveChangesAsync();
-
-            return actor;
-        }
-
-        public async Task<Actor?> AddActorToMovieAsync(int actorid, int movieid)
-        {
-            var selectedMovie = await _db.Movies
-            .Include(m => m.Actors)
-            .FirstOrDefaultAsync(m => m.Id == movieid);
-            var selectedActor = await _db.Actors.FindAsync(actorid);
-
-            if (selectedMovie == null || selectedActor == null)
-                return null;
-
-            selectedMovie.Actors.Add(selectedActor);
-            await _db.SaveChangesAsync();
-            return selectedActor;
-
-        }
-
-        public async Task<Actor?> DeleteActorAsync(int id)
-        {
-            var actor = await _db.Actors.FindAsync(id);
-            if (actor == null)
-                return null;
-      
-            _db.Actors.Remove(actor);
-            await _db.SaveChangesAsync();
-
-            return actor;
-        }
+        return actor;
     }
 }

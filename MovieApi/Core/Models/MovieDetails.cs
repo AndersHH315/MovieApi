@@ -1,4 +1,4 @@
-﻿namespace MovieApi.Models;
+﻿namespace MovieApi.Core.Models;
 
 public class MovieDetails
 {

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MovieApi.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 
 namespace MovieApi.Controllers;
 
@@ -25,26 +25,19 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     }
 
     [HttpGet("movies/{movieid}/reviews")]
-    public async Task<ActionResult<ReviewDto>> GetReviewsForSpecificMovie(int movieid)
+    public async Task<ActionResult<Review>> GetReviewsForSpecificMovie(int movieid)
     {
         var review = await _reviewService.GetReviewsForSpecificMovieAsync(movieid);
 
         if (review == null)
             return NotFound();
 
-        var reviewDto = review.Select(r => new ReviewDto
-        {
-            ReviewerName = r.ReviewerName,
-            Comment = r.Comment,
-            Rating = r.Rating
-        });
-
-        return Ok(reviewDto);
+        return Ok(review);
     }
 
 
     [HttpPost("movies/{movieid}/reviews")]
-    public async Task<ActionResult<ReviewDto>> PostReview(int movieid, [FromQuery] ReviewDto reviewDto)
+    public async Task<IActionResult> PostReview(int movieid, [FromBody] ReviewDto reviewDto)
     {
         var review = await _reviewService.PostReviewAsync(movieid, reviewDto);
 
@@ -52,12 +45,9 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     }
 
     [HttpDelete("reviews/{id}")]
-    public async Task<ActionResult<ReviewDto>> DeleteReview(int id)
+    public async Task<IActionResult> DeleteReview(int id)
     {
-        var review = await _reviewService.DeleteReviewAsync(id);
-
-        if (review == null)
-            return NotFound();
+        await _reviewService.DeleteReviewAsync(id);
 
         return NoContent();
     }

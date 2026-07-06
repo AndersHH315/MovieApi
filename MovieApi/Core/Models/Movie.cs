@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MovieApi.Models;
+namespace MovieApi.Core.Models;
 
 public class Movie
 {
@@ -10,9 +10,9 @@ public class Movie
     public int Duration { get; set; }
 
     public int GenreId { get; set; }
-    public Genre? Genres { get; set; }
+    public Genre Genre { get; set; } = null!;
 
-    public MovieDetails? MovieDetails { get; set; }
+    public MovieDetails MovieDetails { get; set; } = null!;
 
     public ICollection<Review> Reviews { get; set; } = [];
 

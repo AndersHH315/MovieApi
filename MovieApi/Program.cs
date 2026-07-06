@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using MovieApi.Core.DomainContracts;
 using MovieApi.Data;
-using MovieApi.Interfaces;
+using MovieApi.Data.Repositories;
 using MovieApi.Services;
+using MovieApi.Services.Contracts;
 
 namespace MovieApi;
 
@@ -13,7 +15,8 @@ public class Program
         var connectionString = builder.Configuration.GetConnectionString("MovieApiContext") ?? throw new InvalidOperationException("Connection string 'MovieApiContext' not found.");
 
         builder.Services.AddDbContext<MovieApiContext>(options => options.UseSqlServer(connectionString));
-        builder.Services.AddScoped<IMovieApiContext, MovieApiContext>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IServiceManager, ServiceManager>();
         builder.Services.AddScoped<IMovieService, MovieService>();
         builder.Services.AddScoped<IActorService, ActorService>();
         builder.Services.AddScoped<IReviewService, ReviewService>();

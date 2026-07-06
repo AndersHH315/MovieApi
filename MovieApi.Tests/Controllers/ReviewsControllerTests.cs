@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using MovieApi.Controllers;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
+using MovieApi.Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -58,19 +58,15 @@ public class ReviewsControllerTests
     public async Task GetReviewsSpecifictToMovieId()
     {
         // Arrange
-        var movieReviews = new List<Review>
+        var movieReviews = new List<ReviewDto>
         {
-            new Review
+            new ReviewDto
             {
-                Id = 1,
                 ReviewerName = "Alice",
-                MovieId = 1
             },
-            new Review
+            new ReviewDto
             {
-                Id = 2,
                 ReviewerName = "Bob",
-                MovieId = 1
             }
         };
        
@@ -101,13 +97,11 @@ public class ReviewsControllerTests
             Rating = 5
         };
 
-        var review = new Review
+        var review = new ReviewDto
         {
-            Id = 1,
             ReviewerName = "Alice",
             Comment = "Really cool movie! Especially that action trick!",
             Rating = 5,
-            MovieId = 1
         };
 
         var mockService = new Mock<IReviewService>();
@@ -117,11 +111,10 @@ public class ReviewsControllerTests
 
         // Act
         var result = await controller.PostReview(1, reviewDto);
-        var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var checkReview = Assert.IsType<Review>(createdResult.Value);
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        var checkReview = Assert.IsType<ReviewDto>(createdResult.Value);
 
         // Assert
-        Assert.Equal(1, checkReview.MovieId);
         Assert.Equal("Alice", checkReview.ReviewerName);
     }
 
@@ -146,7 +139,7 @@ public class ReviewsControllerTests
         var result = await controller.DeleteReview(1);
 
         // Assert
-        Assert.IsType<NoContentResult>(result.Result);
+        Assert.IsType<NoContentResult>(result);
 
     }
 

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Interfaces;
-using MovieApi.Models;
+using MovieApi.Services.Contracts;
 
 namespace MovieApi.Controllers;
 [Route("api/")]
@@ -37,7 +37,7 @@ public class ActorsController(IActorService actorService) : ControllerBase
 
  
     [HttpPut("actors/{id}")]
-    public async Task<ActionResult<ActorDto>> PutActor(int id, [FromQuery] ActorDto actorDto)
+    public async Task<IActionResult> PutActor(int id, [FromQuery] ActorDto actorDto)
     {
         var actor = await _actorService.PutActorAsync(id, actorDto);
 
@@ -48,31 +48,25 @@ public class ActorsController(IActorService actorService) : ControllerBase
     }
 
     [HttpPost("actors")]
-    public async Task<ActionResult<ActorDto>> PostActor([FromQuery] ActorDto actorDto)
+    public async Task<IActionResult> PostActor([FromBody] ActorDto actorDto)
     {
         var actor = await _actorService.PostActorAsync(actorDto);
 
-        return CreatedAtAction("GetActor", new ActorDto(), actor);
+        return CreatedAtAction("GetActors", new ActorDto(), actor);
     }
 
     [HttpPost("movies/{movieid}/actors/{actorid}")]
-    public async Task<ActionResult<Actor>> AddActorToMovie(int actorid, int movieid)
+    public async Task<IActionResult> AddActorToMovie(int actorid, int movieid)
     {
-        var actorToMovie = await _actorService.AddActorToMovieAsync(actorid, movieid);
+        await _actorService.AddActorToMovieAsync(actorid, movieid);
 
-        if (actorToMovie == null)
-            return NotFound();
-
-        return Ok(actorToMovie);
+        return NoContent();
     }
 
     [HttpDelete("actors/{id}")]
-    public async Task<ActionResult<ActorDto>> DeleteActor(int id)
+    public async Task<IActionResult> DeleteActor(int id)
     {
-        var actor = await _actorService.DeleteActorAsync(id);
-
-        if (actor == null)
-            return NotFound();
+        await _actorService.DeleteActorAsync(id);
 
         return NoContent();
     }

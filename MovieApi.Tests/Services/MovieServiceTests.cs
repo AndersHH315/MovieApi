@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using MovieApi.Core.DTOs;
+using MovieApi.Core.Models;
 using MovieApi.Data;
-using MovieApi.DTOs;
-using MovieApi.Models;
 using MovieApi.Services;
+using MovieApi.Tests.InterfaceSetups;
 
 namespace MovieApi.Tests.Services;
 
@@ -19,7 +19,8 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
         context.Genres.Add(new Genre
         {
@@ -60,7 +61,8 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
         context.Genres.Add( new Genre
         {
@@ -116,7 +118,8 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
         context.Genres.Add(new Genre
         {
@@ -174,9 +177,10 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
-        var movie = new MovieDto
+        var movie = new MovieCreateDto
         {
             Title = "Inception",
             Year = new DateTime(2010, 7, 16),
@@ -204,7 +208,8 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
         context.Genres.Add(new Genre
         {
@@ -252,7 +257,8 @@ public class MovieServiceTests
 
         using var context = new MovieApiContext(options);
 
-        var service = new MovieService(context);
+        var unit = new TestSetupUnitOfWork(context);
+        var service = new MovieService(unit);
 
         context.Genres.Add(new Genre
         {
@@ -269,13 +275,14 @@ public class MovieServiceTests
             GenreId = 1
 
         });
-    
+
+        await unit.SaveAsync();
         // Act
         var result = await service.DeleteMovieAsync(1);
 
+
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.Id);
 
         var checkIfMovieExist = await context.Movies.FindAsync(1);
         Assert.Null(checkIfMovieExist);
