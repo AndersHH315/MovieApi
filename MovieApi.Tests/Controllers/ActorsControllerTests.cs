@@ -3,10 +3,9 @@ using Moq;
 using MovieApi.Controllers;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MovieApi.Tests.PagingSetup;
 
 namespace MovieApi.Tests.Controllers;
 
@@ -36,19 +35,26 @@ public class ActorsControllerTests
             Name = "Christian Bale",
             BirthYear = new DateTime(1974, 1, 30)
         }};
-        var mockService = new Mock<IActorService>();
-        mockService.Setup(s => s.GetActorsAsync())
-            .ReturnsAsync(actorDtoList);
+        var pagedActors = TestPagedResult.Create(actorDtoList);
 
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
+
+        var mockService = new Mock<IActorService>();
+        mockService.Setup(s => s.GetActorsAsync(It.IsAny<PagingParameters>()))
+            .ReturnsAsync(pagedActors);
         var controller = new ActorsController(mockService.Object);
 
         // Act
-        var result = await controller.GetActors();
+        var result = await controller.GetActors(paging);
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var actor = Assert.IsType<List<ActorDto>>(okResult.Value);
+        var actor = Assert.IsType<PagedResult<ActorDto>>(okResult.Value);
 
         // Assert
-        Assert.Equal(4, actor.Count);
+        Assert.Equal(4, actor.Data.Count());
     }
 
     [Fact]

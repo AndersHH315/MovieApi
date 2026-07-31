@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MovieApi.Data;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
 
 namespace MovieApi.Controllers;
@@ -14,9 +13,9 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     private readonly IReviewService _reviewService = reviewService;
 
     [HttpGet("reviews")]
-    public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+    public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviews([FromQuery] PagingParameters paging)
     {
-        var reviews = await _reviewService.GetReviewsAsync();
+        var reviews = await _reviewService.GetReviewsAsync(paging);
 
         if (reviews == null)
             return NotFound();

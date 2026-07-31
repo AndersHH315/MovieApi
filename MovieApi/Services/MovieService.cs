@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MovieApi.Core.DomainContracts;
+﻿using MovieApi.Core.DomainContracts;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
 
 namespace MovieApi.Services;
@@ -12,16 +10,16 @@ public class MovieService(IUnitOfWork unit) : IMovieService
 {
     private readonly IUnitOfWork _unit = unit;
 
-    public async Task<IEnumerable<MovieDto?>?> GetAllMoviesAsync()
+    public async Task<PagedResult<MovieDto>> GetAllMoviesAsync(PagingParameters paging)
     {
         var movies = await _unit.Movies.GetAllAsync();
-        return movies.Select(m => new MovieDto
+        return await movies.Select(m => new MovieDto
         {
             Title = m.Title,
             Year = m.Year,
             Duration = m.Duration,
             Genre = m.Genre.GenreType
-        });
+        }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
     public async Task<MovieDto?> GetMovieByIdAsync(int id)
     {

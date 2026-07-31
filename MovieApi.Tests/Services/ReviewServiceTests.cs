@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Data;
 using MovieApi.Services;
 using MovieApi.Tests.InterfaceSetups;
@@ -89,17 +90,21 @@ public  class ReviewServiceTests
 
         await context.SaveChangesAsync();
 
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
+
         // Act
-        var result = await service.GetReviewsAsync();
+        var result = await service.GetReviewsAsync(paging);
 
         // Assert
         Assert.NotNull(result);
 
-        var reviews = result!.ToList();
+        Assert.Equal(2, result.Data.Count());
 
-        Assert.Equal(2, reviews.Count);
-
-        var checkReview = reviews.First();
+        var checkReview = result.Data.First();
 
         Assert.NotNull(checkReview);
         Assert.Equal("Alice", checkReview.ReviewerName);

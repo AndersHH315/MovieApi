@@ -3,7 +3,9 @@ using Moq;
 using MovieApi.Controllers;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
+using MovieApi.Tests.PagingSetup;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -65,18 +67,25 @@ public class MoviesControllerTests
             Duration = 175
         }};
 
+        var pagedMovies = TestPagedResult.Create(movieDtoList);
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
+
         var mockService = new Mock<IMovieService>();
-        mockService.Setup(s => s.GetAllMoviesAsync())
-            .ReturnsAsync(movieDtoList);
+        mockService.Setup(s => s.GetAllMoviesAsync(It.IsAny<PagingParameters>()))
+            .ReturnsAsync(pagedMovies);
         var controller = new MoviesController(mockService.Object);
 
         // Act
-        var result = await controller.GetMovies();
+        var result = await controller.GetMovies(paging);
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var movie = Assert.IsType<List<MovieDto>>(okResult.Value);
+        var movie = Assert.IsType<PagedResult<MovieDto>>(okResult.Value);
 
         // Assert
-        Assert.Equal(4, movie.Count);
+        Assert.Equal(4, movie.Data.Count());
     }
 
     [Fact]

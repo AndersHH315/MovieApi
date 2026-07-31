@@ -36,7 +36,8 @@ namespace MovieApi.Migrations
                     { 4, "Comedy" },
                     { 5, "Horror" },
                     { 6, "Romance" },
-                    { 7, "Thriller" }
+                    { 7, "Thriller" },
+                    { 8, "Documentary"}
                 });
 
             migrationBuilder.InsertData(

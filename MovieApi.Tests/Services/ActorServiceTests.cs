@@ -4,6 +4,7 @@ using MovieApi.Data;
 using MovieApi.Core.DTOs;
 using MovieApi.Services;
 using MovieApi.Tests.InterfaceSetups;
+using MovieApi.Core.Paging;
 
 namespace MovieApi.Tests.Services
 {
@@ -70,17 +71,21 @@ namespace MovieApi.Tests.Services
 
             await context.SaveChangesAsync();
 
+            var paging = new PagingParameters
+            {
+                CurrentPage = 1,
+                PageSize = 10
+            };
+
             // Act
-            var result = await service.GetActorsAsync();
+            var result = await service.GetActorsAsync(paging);
 
             // Assert
             Assert.NotNull(result);
 
-            var actors = result!.ToList();
+            Assert.Equal(2, result.Data.Count());
 
-            Assert.Equal(2, actors.Count);
-
-            var checkActor = actors.First();
+            var checkActor = result.Data.First();
 
             Assert.NotNull(checkActor);
             Assert.Equal("Leonardo DiCaprio", checkActor.Name);

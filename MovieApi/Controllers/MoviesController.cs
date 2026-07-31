@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
-using MovieApi.Data;
 using MovieApi.Services.Contracts;
+using MovieApi.Core.Paging;
 
 
 namespace MovieApi.Controllers;
@@ -15,9 +14,9 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     private readonly IMovieService _movieService = movieService;
 
     [HttpGet("movies")]
-    public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+    public async Task<ActionResult<PagedResult<MovieDto>>> GetMovies([FromQuery] PagingParameters paging)
     {
-        var movies = await _movieService.GetAllMoviesAsync();
+        var movies = await _movieService.GetAllMoviesAsync(paging);
 
         if (movies == null)
             return NotFound();

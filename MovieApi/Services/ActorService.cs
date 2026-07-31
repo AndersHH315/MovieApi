@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MovieApi.Core.DomainContracts;
+﻿using MovieApi.Core.DomainContracts;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
 using MovieApi.Services.Contracts;
+using MovieApi.Core.Paging;
 
 namespace MovieApi.Services;
 
@@ -11,14 +10,14 @@ public class ActorService(IUnitOfWork unit) : IActorService
 {
     private readonly IUnitOfWork _unit = unit;
 
-    public async Task<IEnumerable<ActorDto?>?> GetActorsAsync()
+    public async Task<PagedResult<ActorDto>> GetActorsAsync(PagingParameters paging)
     {
         var actors = await _unit.Actors.GetAllAsync();
-        return actors.Select(a => new ActorDto
+        return await actors.Select(a => new ActorDto
         {
-            Name = a.Name,
+            Name = a.Name,  
             BirthYear = a.BirthYear
-        });
+        }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
 
     public async Task<ActorDto?> GetActorByIdAsync(int id)

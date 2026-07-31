@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Data;
 using MovieApi.Services;
 using MovieApi.Tests.InterfaceSetups;
@@ -90,17 +91,21 @@ public class MovieServiceTests
 
         await context.SaveChangesAsync();
 
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
+
         // Act
-        var result = await service.GetAllMoviesAsync();
+        var result = await service.GetAllMoviesAsync(paging);
 
         // Assert
         Assert.NotNull(result);
 
-        var movies = result!.ToList();
+        Assert.Equal(2, result.Data.Count());
 
-        Assert.Equal(2, movies.Count);
-
-        var checkMovie = movies.First();
+        var checkMovie = result.Data.First();
 
         Assert.NotNull(checkMovie);
         Assert.Equal("Inception", checkMovie.Title);
