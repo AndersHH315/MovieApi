@@ -41,4 +41,22 @@ public class ReviewRepository(MovieApiContext db) : IReviewRepository
     {
         _db.Reviews.Remove(review);
     }
+
+    public async Task<bool> CheckAmountOfReviews(int movieId)
+    {
+        var movie = await _db.Movies
+            .Include(m => m.Reviews)
+            .FirstOrDefaultAsync(m => m.Id == movieId);
+        if (movie == null)
+            throw new Exception("Movie not found");
+        if (movie.Reviews.Count >= 10)
+            throw new Exception("Movies can only have up to 10 reviews");
+        if (movie.Year < DateTime.Now.AddYears(-20))
+        {
+           if (movie.Reviews.Count >= 5)
+                throw new Exception("Cannot add more than 5 reviews for a movie older than 20 years");
+        }
+
+        return true;
+    }
 }

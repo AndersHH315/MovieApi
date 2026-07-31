@@ -82,13 +82,30 @@ public class MovieService(IUnitOfWork unit) : IMovieService
 
     public async Task<Movie> PostMovieAsync(MovieCreateDto movieCreateDto)
     {
+        if (await _unit.Movies.MovieExistsByName(movieCreateDto.Title))
+            throw new Exception("Movie with the same title already exists");
+
+        if (movieCreateDto.Budget < 0)
+            throw new Exception("Budget can't be negative");
+
+        if (movieCreateDto.GenreId == 8) 
+        {
+            if (movieCreateDto.Budget < 1000000)
+                throw new Exception("Budget for Documentary movies must be at least 1 million");
+        }
+
         var movie = new Movie()
         {
             Title = movieCreateDto.Title,
             Year = movieCreateDto.Year,
             Duration = movieCreateDto.Duration,
-            GenreId = movieCreateDto.GenreId
+            GenreId = movieCreateDto.GenreId,
+            MovieDetails = new MovieDetails
+            {
+                Budget = movieCreateDto.Budget
+            }
         };
+
 
         _unit.Movies.Add(movie);
         await _unit.SaveAsync();

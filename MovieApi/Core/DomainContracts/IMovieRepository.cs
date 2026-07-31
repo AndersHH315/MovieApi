@@ -10,5 +10,6 @@ namespace MovieApi.Core.DomainContracts
         void Add(Movie movie);
         void Update(Movie movie);
         void Remove(Movie movie);
+        Task<bool> MovieExistsByName(string title);
     }
 }

@@ -36,6 +36,12 @@ public class ActorRepository(MovieApiContext db) : IActorRepository
         if (selectedMovie == null || selectedActor == null)
             throw new Exception("Movie or Actor not found");
 
+        if (selectedMovie.Actors.Contains(selectedActor))
+            throw new Exception("Actor is already associated with the movie");
+
+        if (selectedMovie.Actors.Count >= 10 && selectedMovie.GenreId == 8)
+            throw new Exception("Documentary movies can have a maximum of 10 actors");
+
         selectedMovie.Actors.Add(selectedActor);
     }
     public void Update(Actor actor)
