@@ -47,4 +47,9 @@ public class MovieRepository(MovieApiContext db) : IMovieRepository
     {
         _db.Movies.Remove(movie);
     }
+    public async Task<bool>MovieExistsByName(string title)
+    {
+        return await _db.Movies.AnyAsync(x => x.Title == title);
+    }
+
 }

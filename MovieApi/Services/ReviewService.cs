@@ -42,6 +42,10 @@ public class ReviewService(IUnitOfWork unit) : IReviewService
         if (movie == null)
             return null;
 
+        await _unit.Reviews.CheckAmountOfReviews(movieid);
+      
+
+
         var review = new Review
         {
             ReviewerName = reviewDto.ReviewerName,

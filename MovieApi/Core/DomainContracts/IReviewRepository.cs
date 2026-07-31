@@ -10,5 +10,6 @@ namespace MovieApi.Core.DomainContracts
         void Add(Review review);
         void Update(Review review);
         void Remove(Review review);
+        Task<bool> CheckAmountOfReviews(int movieId);
     }
 }
