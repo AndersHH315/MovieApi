@@ -24,9 +24,9 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     }
 
     [HttpGet("movies/{movieid}/reviews")]
-    public async Task<ActionResult<Review>> GetReviewsForSpecificMovie(int movieid)
+    public async Task<ActionResult<PagedResult<ReviewDto>>> GetReviewsForSpecificMovie(int movieid, [FromQuery] PagingParameters paging)
     {
-        var review = await _reviewService.GetReviewsForSpecificMovieAsync(movieid);
+        var review = await _reviewService.GetReviewsForSpecificMovieAsync(movieid, paging);
 
         if (review == null)
             return NotFound();

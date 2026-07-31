@@ -5,6 +5,7 @@ using MovieApi.Core.Paging;
 using MovieApi.Data;
 using MovieApi.Services;
 using MovieApi.Tests.InterfaceSetups;
+using MovieApi.Tests.PagingSetup;
 
 namespace MovieApi.Tests.Services;
 
@@ -50,12 +51,18 @@ public  class ReviewServiceTests
         context.Movies.Add(movieReviews);
         await context.SaveChangesAsync();
 
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
+
         // Act
-        var result = await service.GetReviewsForSpecificMovieAsync(1);
+        var result = await service.GetReviewsForSpecificMovieAsync(1, paging);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Alice", result.Single().ReviewerName);
+        Assert.Equal("Alice", result.Data.Single().ReviewerName);
 
     }
 

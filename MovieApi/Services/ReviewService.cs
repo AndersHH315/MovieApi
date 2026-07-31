@@ -24,15 +24,15 @@ public class ReviewService(IUnitOfWork unit) : IReviewService
         }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
 
-    public async Task<IEnumerable<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid)
+    public async Task<PagedResult<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid, PagingParameters paging)
     {
         var movieReview = await _unit.Reviews.GetReviewsByMovieId(movieid);
-        return movieReview.Select(r => new ReviewDto
+        return await movieReview.Select(r => new ReviewDto
         {
             ReviewerName = r.ReviewerName,
             Comment = r.Comment,
             Rating = r.Rating
-        });
+        }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
 
     public async Task<ReviewDto?> PostReviewAsync(int movieid, ReviewDto reviewDto)
