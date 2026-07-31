@@ -3,7 +3,9 @@ using Moq;
 using MovieApi.Controllers;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
+using MovieApi.Tests.PagingSetup;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,18 +42,24 @@ public class ReviewsControllerTests
             Comment = "A thrilling superhero film.",
             Rating = 5
         }};
+        var pagedReviews = TestPagedResult.Create(reviewDtoList);
+        var paging = new PagingParameters
+        {
+            CurrentPage = 1,
+            PageSize = 10
+        };
         var mockService = new Mock<IReviewService>();
-        mockService.Setup(s => s.GetReviewsAsync())
-            .ReturnsAsync(reviewDtoList);
+        mockService.Setup(s => s.GetReviewsAsync(It.IsAny<PagingParameters>()))
+            .ReturnsAsync(pagedReviews);
         var controller = new ReviewsController(mockService.Object);
 
         // Act
-        var result = await controller.GetReviews();
+        var result = await controller.GetReviews(paging);
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var review = Assert.IsType<List<ReviewDto>>(okResult.Value);
+        var review = Assert.IsType<PagedResult<ReviewDto>>(okResult.Value);
 
         // Assert
-        Assert.Equal(4, review.Count);
+        Assert.Equal(4, review.Data.Count());
     }
 
     [Fact]
@@ -69,20 +77,27 @@ public class ReviewsControllerTests
                 ReviewerName = "Bob",
             }
         };
-       
+
+        var pagedMovies = TestPagedResult.Create(movieReviews);
+        var paging = new PagingParameters
+        {   
+            CurrentPage = 1,
+            PageSize = 10   
+        };
+
         var mockService = new Mock<IReviewService>();
-        mockService.Setup(s => s.GetReviewsForSpecificMovieAsync(1))
-            .ReturnsAsync(movieReviews);
+        mockService.Setup(s => s.GetReviewsForSpecificMovieAsync(1, paging))
+            .ReturnsAsync(pagedMovies);
         var controller = new ReviewsController(mockService.Object);
 
         // Act
-        var result = await controller.GetReviewsForSpecificMovie(1);
+        var result = await controller.GetReviewsForSpecificMovie(1, paging);
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var review = Assert.IsAssignableFrom<IEnumerable<ReviewDto>>(okResult.Value);
+        var review = Assert.IsAssignableFrom<PagedResult<ReviewDto>>(okResult.Value);
 
         // Assert
-        Assert.Equal(2, review.Count());
-        Assert.Contains(review, r => r.ReviewerName == "Alice");
+        Assert.Equal(2, review.Data.Count());
+        Assert.Contains(review.Data, r => r.ReviewerName == "Alice");
 
     }
 

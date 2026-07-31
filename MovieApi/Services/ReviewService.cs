@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Core.DomainContracts;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
 
 namespace MovieApi.Services;
@@ -12,26 +13,26 @@ public class ReviewService(IUnitOfWork unit) : IReviewService
 {
     private readonly IUnitOfWork _unit = unit;
 
-    public async Task<IEnumerable<ReviewDto?>?> GetReviewsAsync()
+    public async Task<PagedResult<ReviewDto>> GetReviewsAsync(PagingParameters paging)
     {
         var reviews = await _unit.Reviews.GetAllAsync();
-        return reviews.Select(r => new ReviewDto
+        return await reviews.Select(r => new ReviewDto
         {
             ReviewerName = r.ReviewerName,
             Comment = r.Comment,
             Rating = r.Rating
-        });
+        }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
 
-    public async Task<IEnumerable<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid)
+    public async Task<PagedResult<ReviewDto>> GetReviewsForSpecificMovieAsync(int movieid, PagingParameters paging)
     {
         var movieReview = await _unit.Reviews.GetReviewsByMovieId(movieid);
-        return movieReview.Select(r => new ReviewDto
+        return await movieReview.Select(r => new ReviewDto
         {
             ReviewerName = r.ReviewerName,
             Comment = r.Comment,
             Rating = r.Rating
-        });
+        }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
 
     public async Task<ReviewDto?> PostReviewAsync(int movieid, ReviewDto reviewDto)

@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 using MovieApi.Core.DTOs;
-using MovieApi.Core.Models;
-using MovieApi.Data;
+using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
 
 namespace MovieApi.Controllers;
@@ -14,9 +11,9 @@ public class ActorsController(IActorService actorService) : ControllerBase
     private readonly IActorService _actorService = actorService;
 
     [HttpGet("actors")]
-    public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
+    public async Task<ActionResult<PagedResult<ActorDto>>> GetActors([FromQuery] PagingParameters paging)
     {
-        var actors = await _actorService.GetActorsAsync();
+        var actors = await _actorService.GetActorsAsync(paging);
 
         if (actors == null)
             return NotFound();
