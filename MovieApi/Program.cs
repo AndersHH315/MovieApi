@@ -4,6 +4,7 @@ using MovieApi.Data;
 using MovieApi.Data.Repositories;
 using MovieApi.Services;
 using MovieApi.Services.Contracts;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace MovieApi;
 
@@ -23,10 +24,17 @@ public class Program
 
         // Add services to the container.
 
-        builder.Services.AddControllers();
+        builder.Services
+            .AddControllers()
+            .AddNewtonsoftJson();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.ExampleFilters();
+        });
+
+        builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
         var app = builder.Build();
 

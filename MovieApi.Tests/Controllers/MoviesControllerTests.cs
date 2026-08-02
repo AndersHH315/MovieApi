@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using Moq;
 using MovieApi.Controllers;
 using MovieApi.Core.DTOs;
@@ -6,9 +7,6 @@ using MovieApi.Core.Models;
 using MovieApi.Core.Paging;
 using MovieApi.Services.Contracts;
 using MovieApi.Tests.PagingSetup;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MovieApi.Tests.Controllers;
 
@@ -92,7 +90,7 @@ public class MoviesControllerTests
     public async Task GetMovieDetails()
     {
         // Arrange
-        var movieDetailDto = new MovieDetailDto
+        var movieDetailDto = new AllMovieDetailsDto
             {
                 Title = "Inception",
                 Year = new DateTime(2010, 07, 16),
@@ -113,7 +111,7 @@ public class MoviesControllerTests
         // Act
         var result = await controller.GetMovieDetails(1);
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var movie = Assert.IsType<MovieDetailDto>(okResult.Value);
+        var movie = Assert.IsType<AllMovieDetailsDto>(okResult.Value);
 
         // Assert
         Assert.Equal("Inception", movie.Title);
@@ -139,12 +137,12 @@ public class MoviesControllerTests
         };
 
         var mockService = new Mock<IMovieService>();
-        mockService.Setup(s => s.PutMovieAsync(1, movieUpdateDto))
+        mockService.Setup(s => s.PutMovieAsync(1, It.IsAny<JsonPatchDocument<MovieUpdateDto>>()))
             .ReturnsAsync(movie);
         var controller = new MoviesController(mockService.Object);
 
         // Act
-        var result = await controller.PutMovie(1, movieUpdateDto);
+        var result = await controller.PutMovie(1, It.IsAny<JsonPatchDocument<MovieUpdateDto>>());
         var okResult = Assert.IsType<OkObjectResult>(result);
         var movieResult = Assert.IsType<Movie>(okResult.Value);
 

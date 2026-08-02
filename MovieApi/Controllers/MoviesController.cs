@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
-using MovieApi.Services.Contracts;
 using MovieApi.Core.Paging;
+using MovieApi.Services.Contracts;
+using MovieApi.Swagger.Examples;
+using Swashbuckle.AspNetCore.Filters;
 
 
 namespace MovieApi.Controllers;
@@ -36,7 +39,7 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     }
 
     [HttpGet("movies/{id}/details")]
-    public async Task<ActionResult<MovieDetailDto>> GetMovieDetails(int id)
+    public async Task<ActionResult<AllMovieDetailsDto>> GetMovieDetails(int id)
     {
         var movie = await _movieService.GetMovieDetailsAsync(id);
 
@@ -47,10 +50,11 @@ public class MoviesController(IMovieService movieService) : ControllerBase
     }
 
     [HttpPut("movies/{id}")]
-    public async Task<IActionResult> PutMovie(int id, [FromQuery] MovieUpdateDto movieDto)
+    [SwaggerRequestExample(typeof(JsonPatchDocument<MovieUpdateDto>), typeof(MovieUpdateExample))]
+    public async Task<IActionResult> PutMovie(int id, [FromBody] JsonPatchDocument<MovieUpdateDto> patchDoc)
     {
 
-        var movie = await _movieService.PutMovieAsync(id, movieDto);
+        var movie = await _movieService.PutMovieAsync(id, patchDoc);
 
         if (movie == null)
             return BadRequest();
