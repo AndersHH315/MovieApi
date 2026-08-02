@@ -1,4 +1,5 @@
-﻿using MovieApi.Core.DomainContracts;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using MovieApi.Core.DomainContracts;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
 using MovieApi.Core.Paging;
@@ -38,14 +39,14 @@ public class MovieService(IUnitOfWork unit) : IMovieService
         return movieDto;
     }
 
-    public async Task<MovieDetailDto?> GetMovieDetailsAsync(int id)
+    public async Task<AllMovieDetailsDto?> GetMovieDetailsAsync(int id)
     {
         var movie = await _unit.Movies.GetMovieDetailsById(id);
 
         if (movie == null)
             return null;
 
-        var movieDetailsDto = new MovieDetailDto
+        var movieDetailsDto = new AllMovieDetailsDto
         {
             Title = movie.Title,
             Year = movie.Year,
@@ -61,17 +62,37 @@ public class MovieService(IUnitOfWork unit) : IMovieService
         return movieDetailsDto;
     }
 
-    public async Task<Movie?> PutMovieAsync(int id, MovieUpdateDto movieDto)
+    public async Task<Movie?> PutMovieAsync(int id, JsonPatchDocument<MovieUpdateDto> patchDoc)
     {
         var movie = await _unit.Movies.GetMovieAsync(id);
 
         if (movie == null)
             return null;
 
-        movie.Title = movieDto.Title;
-        movie.Year = movieDto.Year;
-        movie.Duration = movieDto.Duration;
-        movie.Genre.GenreType = movieDto.Genre;
+        var movieAndDetailsDto = new MovieUpdateDto
+        {
+            Title = movie.Title,
+            Year = movie.Year,
+            Duration = movie.Duration,
+            Genre = movie.Genre.GenreType,
+            MovieDetails = new MovieDetailDto
+            {
+                Synopsis = movie.MovieDetails.Synopsis,
+                Language = movie.MovieDetails.Language,
+                Budget = movie.MovieDetails.Budget
+            }
+        };
+
+        patchDoc.ApplyTo(movieAndDetailsDto);
+
+        movie.Title = movieAndDetailsDto.Title;
+        movie.Year = movieAndDetailsDto.Year;
+        movie.Duration = movieAndDetailsDto.Duration;
+        movie.Genre.GenreType = movieAndDetailsDto.Genre;
+
+        movie.MovieDetails.Synopsis = movieAndDetailsDto.MovieDetails.Synopsis;
+        movie.MovieDetails.Language = movieAndDetailsDto.MovieDetails.Language;
+        movie.MovieDetails.Budget = movieAndDetailsDto.MovieDetails.Budget;
 
         _unit.Movies.Update(movie);
         await _unit.SaveAsync();
@@ -85,17 +106,18 @@ public class MovieService(IUnitOfWork unit) : IMovieService
         if (await _unit.Movies.MovieExistsByName(movieCreateDto.Title))
             throw new Exception("Movie with the same title already exists");
 
-        if (movieCreateDto.Budget < 0)
+        if (movieCreateDto.MovieDetails.Budget < 0)
             throw new Exception("Budget can't be negative");
+
+        if (movieCreateDto.GenreId < 0 || movieCreateDto.GenreId > 8)
+            throw new Exception("Genre don't exist!");
 
         if (movieCreateDto.GenreId == 8) 
         {
-            if (movieCreateDto.Budget < 1000000)
+            if (movieCreateDto.MovieDetails.Budget < 1_000_000)
                 throw new Exception("Budget for Documentary movies must be at least 1 million");
         }
 
-        if (movieCreateDto.GenreId <= 0 || movieCreateDto.GenreId >= 8)
-            throw new Exception("Genre don't exist!");
 
         var movie = new Movie()
         {
@@ -105,7 +127,9 @@ public class MovieService(IUnitOfWork unit) : IMovieService
             GenreId = movieCreateDto.GenreId,
             MovieDetails = new MovieDetails
             {
-                Budget = movieCreateDto.Budget
+                Synopsis = movieCreateDto.MovieDetails.Synopsis,
+                Language = movieCreateDto.MovieDetails.Language,
+                Budget = movieCreateDto.MovieDetails.Budget
             }
         };
 

@@ -19,6 +19,7 @@ public class MovieRepository(MovieApiContext db) : IMovieRepository
     {
         var movie = await _db.Movies
             .Include(m => m.Genre)
+            .Include(m => m.MovieDetails)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)

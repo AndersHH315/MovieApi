@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.JsonPatch;
 using MovieApi.Core.DTOs;
 using MovieApi.Core.Models;
 using MovieApi.Core.Paging;
@@ -229,24 +230,28 @@ public class MovieServiceTests
             Title = "Inception",
             Year = new DateTime(2010, 7, 16),
             Duration = 148,
-            GenreId = 1
+            GenreId = 1,
+            MovieDetails = new MovieDetails {
+                Synopsis = "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.",
+                Language = "English",
+                Budget = 16000000
+            }
         });
 
         await context.SaveChangesAsync();
 
-        var movieUpdate = new MovieUpdateDto
-        {
-            Title = "Intestellar",
-            Year = new DateTime(2014, 11, 7),
-            Duration = 169
-        };
+        var patchDoc = new JsonPatchDocument<MovieUpdateDto>();
+
+        patchDoc.Replace(m => m.Title, "Interstellar");
+        patchDoc.Replace(m => m.Year, new DateTime(2014, 11, 7));
+        patchDoc.Replace(m => m.Duration, 169);
 
         // Act
-        var result = await service.PutMovieAsync(1, movieUpdate);
+        var result = await service.PutMovieAsync(1, patchDoc);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Intestellar", result.Title);
+        Assert.Equal("Interstellar", result.Title);
         Assert.Equal(new DateTime(2014, 11, 7), result.Year);
         Assert.Equal(169, result.Duration);
 
