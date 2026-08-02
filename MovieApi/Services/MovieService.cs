@@ -94,6 +94,9 @@ public class MovieService(IUnitOfWork unit) : IMovieService
                 throw new Exception("Budget for Documentary movies must be at least 1 million");
         }
 
+        if (movieCreateDto.GenreId <= 0 || movieCreateDto.GenreId >= 8)
+            throw new Exception("Genre don't exist!");
+
         var movie = new Movie()
         {
             Title = movieCreateDto.Title,
