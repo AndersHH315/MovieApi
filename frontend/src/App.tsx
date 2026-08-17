@@ -45,7 +45,6 @@ export default function App() {
   const [synopsis, setSynopsis] = useState("");
   const [language, setLanguage] = useState("");
   const [budget, setBudget] = useState("");
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /*Post method */
@@ -116,8 +115,6 @@ export default function App() {
       } catch (error) {
         setError('Failed to fetch movies');
         console.error(error);
-      } finally {
-        setLoading(false);
       }
   };
 
