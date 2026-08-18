@@ -4,6 +4,7 @@ namespace MovieApi.Core.DTOs;
 
 public class MovieDto
 {
+    public int Id {get; set;}
     [Required]
     [StringLength(30, MinimumLength = 3, ErrorMessage = "Name needs to at least include 3-30 chars!")]
     public string? Title { get; set; }
@@ -15,5 +16,8 @@ public class MovieDto
     [Required]
     [StringLength(30, MinimumLength = 3, ErrorMessage = "Name needs to at least include 5-10 chars!")]
     public string? Genre { get; set; }
+    public int GenreId { get; set; }
+
+    public MovieDetailDto? MovieDetails { get; set; }
 
 }

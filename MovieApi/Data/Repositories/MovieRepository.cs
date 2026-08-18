@@ -12,6 +12,7 @@ public class MovieRepository(MovieApiContext db) : IMovieRepository
     {
         var movies = await _db.Movies
             .Include(m => m.Genre)
+            .Include(m => m.MovieDetails)
             .ToListAsync();
         return movies;
     }
