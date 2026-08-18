@@ -16,10 +16,18 @@ public class MovieService(IUnitOfWork unit) : IMovieService
         var movies = await _unit.Movies.GetAllAsync();
         return await movies.Select(m => new MovieDto
         {
+            Id = m.Id,
             Title = m.Title,
             Year = m.Year,
             Duration = m.Duration,
-            Genre = m.Genre.GenreType
+            Genre = m.Genre.GenreType,
+            GenreId = m.GenreId,
+            MovieDetails = m.MovieDetails == null ? null: new MovieDetailDto
+            {
+                Synopsis = m.MovieDetails.Synopsis,
+                Language = m.MovieDetails.Language,
+                Budget = m.MovieDetails.Budget
+            }
         }).AsQueryable().ToPagedResult(paging.CurrentPage, paging.PageSize);
     }
     public async Task<MovieDto?> GetMovieByIdAsync(int id)
