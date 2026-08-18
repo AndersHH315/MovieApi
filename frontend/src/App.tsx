@@ -112,7 +112,7 @@ export default function App() {
     },
     {
       op: "replace",
-      path: "/genre",
+      path: "/genreId",
       value: movie.genreId,
     },
     {

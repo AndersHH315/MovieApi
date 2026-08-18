@@ -13,7 +13,7 @@
             patch.Replace(x => x.Title, "Interstellar");
             patch.Replace(x => x.Year, new DateTime(2014, 11, 7));
             patch.Replace(x => x.Duration, 169);
-            patch.Replace(x => x.Genre, "Sci-Fi");
+            patch.Replace(x => x.GenreId, 1);
 
             patch.Replace(x => x.MovieDetails.Budget, 165000000);
             patch.Replace(x => x.MovieDetails.Language, "English");

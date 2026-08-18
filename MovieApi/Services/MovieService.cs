@@ -82,8 +82,8 @@ public class MovieService(IUnitOfWork unit) : IMovieService
             Title = movie.Title,
             Year = movie.Year,
             Duration = movie.Duration,
-            Genre = movie.Genre.GenreType,
-            MovieDetails = new MovieDetailDto
+            GenreId = movie.GenreId,
+            MovieDetails = movie.MovieDetails == null ? new MovieDetailDto(): new MovieDetailDto
             {
                 Synopsis = movie.MovieDetails.Synopsis,
                 Language = movie.MovieDetails.Language,
@@ -96,8 +96,12 @@ public class MovieService(IUnitOfWork unit) : IMovieService
         movie.Title = movieAndDetailsDto.Title;
         movie.Year = movieAndDetailsDto.Year;
         movie.Duration = movieAndDetailsDto.Duration;
-        movie.Genre.GenreType = movieAndDetailsDto.Genre;
+        movie.GenreId = movieAndDetailsDto.GenreId;
 
+        if (movie.MovieDetails == null)
+        {
+            movie.MovieDetails = new MovieDetails();
+        }
         movie.MovieDetails.Synopsis = movieAndDetailsDto.MovieDetails.Synopsis;
         movie.MovieDetails.Language = movieAndDetailsDto.MovieDetails.Language;
         movie.MovieDetails.Budget = movieAndDetailsDto.MovieDetails.Budget;
