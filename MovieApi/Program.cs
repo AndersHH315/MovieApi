@@ -15,6 +15,15 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var connectionString = builder.Configuration.GetConnectionString("MovieApiContext") ?? throw new InvalidOperationException("Connection string 'MovieApiContext' not found.");
 
+        builder.Services.AddCors(options =>
+        {
+           options.AddPolicy("ReactFrontend", policy =>
+           {
+                policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+           }); 
+        });
         builder.Services.AddDbContext<MovieApiContext>(options => options.UseSqlServer(connectionString));
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IServiceManager, ServiceManager>();
@@ -46,10 +55,11 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors("ReactFrontend");
+
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 
