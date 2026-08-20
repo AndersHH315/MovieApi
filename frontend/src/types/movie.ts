@@ -27,7 +27,7 @@ export interface IMovieEdit {
   }
 }
 
-export interface IMovieAdd {
+export interface IMovieCreate {
   title: string;
   year: string;
   duration: number;
