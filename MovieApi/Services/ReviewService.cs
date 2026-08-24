@@ -29,6 +29,7 @@ public class ReviewService(IUnitOfWork unit) : IReviewService
         var movieReview = await _unit.Reviews.GetReviewsByMovieId(movieid);
         return await movieReview.Select(r => new ReviewDto
         {
+            Id = r.Id,
             ReviewerName = r.ReviewerName,
             Comment = r.Comment,
             Rating = r.Rating
@@ -59,6 +60,7 @@ public class ReviewService(IUnitOfWork unit) : IReviewService
 
         var newReview = new ReviewDto
         {
+            Id = review.Id,
             ReviewerName = review.ReviewerName,
             Comment = review.Comment,
             Rating = review.Rating

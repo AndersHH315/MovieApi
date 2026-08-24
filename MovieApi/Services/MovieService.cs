@@ -56,6 +56,7 @@ public class MovieService(IUnitOfWork unit) : IMovieService
 
         var movieDetailsDto = new AllMovieDetailsDto
         {
+            Id = movie.Id,
             Title = movie.Title,
             Year = movie.Year,
             Duration = movie.Duration,
@@ -63,8 +64,8 @@ public class MovieService(IUnitOfWork unit) : IMovieService
             Synopsis = movie.MovieDetails.Synopsis,
             Language = movie.MovieDetails.Language,
             Budget = movie.MovieDetails.Budget,
-            Reviews = movie.Reviews.Select(r => new ReviewDto { ReviewerName = r.ReviewerName, Comment = r.Comment, Rating = r.Rating }).ToList(),
-            Actors = movie.Actors.Select(a => new ActorDto { Name = a.Name, BirthYear = a.BirthYear }).ToList()
+            Reviews = movie.Reviews.Select(r => new ReviewDto {Id = r.Id, ReviewerName = r.ReviewerName, Comment = r.Comment, Rating = r.Rating }).ToList(),
+            Actors = movie.Actors.Select(a => new ActorDto { Id = a.Id, Name = a.Name, BirthYear = a.BirthYear }).ToList()
         };
    
         return movieDetailsDto;

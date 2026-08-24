@@ -2,6 +2,7 @@
 {
     public class AllMovieDetailsDto
     {
+        public int Id { get; set; }
         public string? Title { get; set; }
         public DateTime Year { get; set; }
         public int Duration { get; set; }
