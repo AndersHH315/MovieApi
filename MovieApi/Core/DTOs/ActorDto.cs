@@ -5,6 +5,7 @@ namespace MovieApi.Core.DTOs;
 
 public class ActorDto
 {
+    public int Id { get; set; }
     [Required]
     [StringLength(30, MinimumLength = 3, ErrorMessage = "Name needs to at least include 3-30 chars!")]
     public string? Name { get; set; }

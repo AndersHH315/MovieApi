@@ -4,6 +4,7 @@ namespace MovieApi.Core.DTOs;
 
 public class ReviewDto
 {
+    public int Id { get; set; }
     [Required]
     [StringLength(20, MinimumLength = 3, ErrorMessage = "Name needs to at least include 3-20 chars!")]
     public string? ReviewerName { get; set; }

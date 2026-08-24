@@ -14,6 +14,19 @@ export interface IMovie {
   }
 }
 
+export interface IMovieAllDetails {
+  id: number;
+  title: string;
+  year: string;
+  duration: number;
+  genre: string;
+  synopsis: string;
+  language: string;
+  budget: number;
+  reviews: IReview[];
+  actors: IActor[];
+}
+
 export interface IMovieEdit {
   id: number;
   title: string;
@@ -37,6 +50,25 @@ export interface IMovieCreate {
     language: string;
     budget: number;
   }
+}
+
+export interface IReview {
+  id: number;
+  reviewerName: string;
+  comment: string;
+  rating: number;
+}
+
+export interface ICreateReview {
+  reviewerName: string;
+  comment: string;
+  rating: number;
+}
+
+export interface IActor {
+  id: number;
+  name: string;
+  birthYear: string;
 }
 
 export interface IPagingMeta {

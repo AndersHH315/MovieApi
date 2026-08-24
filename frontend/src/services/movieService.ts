@@ -1,4 +1,4 @@
-import type {IMovie, IMovieEdit, IMovieCreate, IPagedResult } from "../types/movie";
+import type {IMovie, IMovieEdit, IMovieCreate, IPagedResult, IMovieAllDetails, IReview, ICreateReview } from "../types/movie";
 
 const API_URL = "https://localhost:7006/api/movies";
 
@@ -13,7 +13,18 @@ export const getMovies = async (): Promise<IPagedResult<IMovie>> => {
     return response.json();          
 };
 
-/*Post method */
+/*Get movie details method */
+export const getMovieDetails = async (id: number): Promise<IMovieAllDetails> => {
+  const response = await fetch(`${API_URL}/${id}/details`);
+
+  if (!response.ok) {
+    throw new Error("Couldn't retrive the seleced movie!");
+  }
+
+  return response.json();
+}
+
+/*Post movie method */
 export const createMovie = async (movie: IMovieCreate): Promise<IMovie> => {
     const response = await fetch(`${API_URL}`,{
         method: "POST",
@@ -31,7 +42,25 @@ export const createMovie = async (movie: IMovieCreate): Promise<IMovie> => {
     return response.json();
 };
 
-/*Update method */
+/*Post review method */
+export const postReview = async (movieId: number, review: ICreateReview): Promise<IReview> => {
+    const response = await fetch(`${API_URL}/${movieId}/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(review),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Couldn't post the review!");
+  }
+
+  return response.json();
+};
+
+/*Update movie method */
 export const updateMovie = async (movie: IMovieEdit): Promise<IMovie> => {
 
     const patch = [
